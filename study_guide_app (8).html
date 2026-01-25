@@ -1382,17 +1382,17 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         // --- INTERACTION LOGIC ---
 
         // YouTube Player Integration
-        let player;
+        let ytPlayer;  // Use 'ytPlayer' instead of 'player' to avoid conflicts with obfuscated code
         let playerReady = false;
 
         // Mobile/Touch Controls - Define BEFORE using them
         function togglePlayPause() {
           console.log('▶⏸ togglePlayPause called');
-          console.log('  - player exists:', !!player);
+          console.log('  - ytPlayer exists:', !!ytPlayer);
           console.log('  - playerReady:', playerReady);
           
-          if (!player) {
-            console.error('❌ Player object not initialized');
+          if (!ytPlayer) {
+            console.error('❌ YouTube player object not initialized');
             return;
           }
           
@@ -1402,7 +1402,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           }
           
           try {
-            const state = player.getPlayerState();
+            const state = ytPlayer.getPlayerState();
             console.log('  - current state:', state);
             console.log('  - YT.PlayerState.PLAYING:', YT.PlayerState.PLAYING);
             console.log('  - YT.PlayerState.BUFFERING:', YT.PlayerState.BUFFERING);
@@ -1466,7 +1466,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             console.log('📝 Creating YT.Player instance...');
             console.log('Container element:', document.getElementById('player'));
             
-            player = new YT.Player('player', {
+            ytPlayer = new YT.Player('player', {
               height: '100%',
               width: '100%',
               videoId: 'YPQ-jHxcSqc',
@@ -1507,17 +1507,17 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             });
             
             console.log('📝 YT.Player instance created');
-            console.log('Player type:', typeof player);
-            console.log('Player constructor:', player?.constructor?.name);
-            console.log('Player has seekTo:', typeof player?.seekTo === 'function');
-            console.log('Full player object:', player);
+            console.log('Player type:', typeof ytPlayer);
+            console.log('Player constructor:', ytPlayer?.constructor?.name);
+            console.log('Player has seekTo:', typeof ytPlayer?.seekTo === 'function');
+            console.log('Full player object:', ytPlayer);
             
             // Fallback: If onReady doesn't fire within 3 seconds, force set playerReady
             setTimeout(() => {
-              if (!playerReady && player) {
+              if (!playerReady && ytPlayer) {
                 console.warn('⚠️ onReady event did not fire within 3 seconds, forcing playerReady=true');
                 playerReady = true;
-                console.log('Player after 3s - has seekTo:', typeof player?.seekTo === 'function');
+                console.log('Player after 3s - has seekTo:', typeof ytPlayer?.seekTo === 'function');
                 updatePlayButton();
               }
             }, 3000);
@@ -1556,7 +1556,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             // Give it 5 seconds max to initialize
             setTimeout(() => {
               if (checkInterval) clearInterval(checkInterval);
-              if (!player) {
+              if (!ytPlayer) {
                 console.error('❌ Player still not initialized after 5 seconds');
               }
             }, 5000);
@@ -1564,12 +1564,12 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           }
           
           // Check if player has the required methods
-          if (typeof player.seekTo !== 'function') {
+          if (typeof ytPlayer.seekTo !== 'function') {
             console.error('❌ Player object does not have seekTo method');
-            console.error('Player type:', typeof player);
-            console.error('Player constructor:', player?.constructor?.name);
-            console.error('Player keys:', Object.keys(player));
-            console.error('Full player:', player);
+            console.error('Player type:', typeof ytPlayer);
+            console.error('Player constructor:', ytPlayer?.constructor?.name);
+            console.error('Player keys:', Object.keys(ytPlayer));
+            console.error('Full player:', ytPlayer);
             
             // Maybe the player needs more time to fully initialize
             if (!playerReady) {
@@ -1582,15 +1582,15 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           // Player exists and has methods, try to use it
           try {
             console.log(`🎯 Seeking to ${formatTime(seconds)}...`);
-            player.seekTo(seconds, true);
-            player.playVideo();
+            ytPlayer.seekTo(seconds, true);
+            ytPlayer.playVideo();
             console.log(`✅ Jumped to ${formatTime(seconds)}`);
             if (!playerReady) {
               console.log('⚠️ Note: Player was not fully ready but command succeeded');
             }
           } catch(err) {
             console.error('❌ Error jumping to time:', err);
-            // If player.seekTo failed, it might be because player isn't ready
+            // If ytPlayer.seekTo failed, it might be because player isn't ready
             if (!playerReady) {
               console.warn('⏳ Player might not be ready yet, retrying in 1 second...');
               setTimeout(() => jumpToTime(seconds), 1000);
@@ -1599,8 +1599,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         }
 
         function setTimestampFromPlayer(idx) {
-          if (!player || !player.getCurrentTime || !transcriptData[idx]) return;
-          const current = Math.floor(player.getCurrentTime());
+          if (!ytPlayer || !ytPlayer.getCurrentTime || !transcriptData[idx]) return;
+          const current = Math.floor(ytPlayer.getCurrentTime());
           transcriptData[idx].t = current;
           persistTimestamps();
           renderTranscript();
@@ -1897,8 +1897,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
         // Fallback: Check and initialize player after a delay if not already done
         setTimeout(() => {
-          console.log('🔍 Fallback check: playerReady=', playerReady, ', player=', !!player);
-          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !player) {
+          console.log('🔍 Fallback check: playerReady=', playerReady, ', ytPlayer=', !!ytPlayer);
+          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !ytPlayer) {
             console.log('📡 API loaded but player not initialized, initializing now...');
             initializeYouTubePlayer();
           }
@@ -1906,8 +1906,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
         // Another fallback at 5 seconds
         setTimeout(() => {
-          console.log('🔍 Second fallback check: playerReady=', playerReady, ', player=', !!player);
-          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !player) {
+          console.log('🔍 Second fallback check: playerReady=', playerReady, ', ytPlayer=', !!ytPlayer);
+          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !ytPlayer) {
             console.log('📡 Still no player, forcing initialization...');
             initializeYouTubePlayer();
           }
@@ -1915,8 +1915,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
         // Final fallback: Force playerReady if player exists but onReady didn't fire
         setTimeout(() => {
-          console.log('🔍 Final fallback: playerReady=', playerReady, ', player=', !!player);
-          if (player && !playerReady) {
+          console.log('🔍 Final fallback: playerReady=', playerReady, ', ytPlayer=', !!ytPlayer);
+          if (ytPlayer && !playerReady) {
             console.warn('⚠️ Player exists but playerReady is still false, forcing it now...');
             playerReady = true;
             console.log('✅ playerReady forced to true');
