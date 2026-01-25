@@ -1535,66 +1535,47 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         };
 
         function jumpToTime(seconds) {
-          console.log(`📍 jumpToTime called with ${seconds} seconds, playerReady=${playerReady}, player=${!!player}`);
+          console.log(`📍 jumpToTime called with ${seconds} seconds`);
           
           if (typeof seconds !== 'number') {
             console.error('❌ Invalid seconds parameter:', seconds);
             return;
           }
 
-          // If player not created, initialize it first
-          if (!player) {
-            console.warn('⏳ Player not created yet, attempting to initialize...');
-            // Wait for API to load and player to be created
-            const checkInterval = setInterval(() => {
-              if (player && playerReady) {
-                clearInterval(checkInterval);
-                jumpToTime(seconds); // Retry with player ready
-              }
-            }, 100);
-            
-            // Give it 5 seconds max to initialize
-            setTimeout(() => {
-              if (checkInterval) clearInterval(checkInterval);
-              if (!ytPlayer) {
-                console.error('❌ Player still not initialized after 5 seconds');
-              }
-            }, 5000);
+          // Use YouTube embed's postMessage API to control video
+          const playerDiv = document.getElementById('player');
+          if (!playerDiv) {
+            console.error('❌ Player container not found');
             return;
           }
-          
-          // Check if player has the required methods
-          if (typeof ytPlayer.seekTo !== 'function') {
-            console.error('❌ Player object does not have seekTo method');
-            console.error('Player type:', typeof ytPlayer);
-            console.error('Player constructor:', ytPlayer?.constructor?.name);
-            console.error('Player keys:', Object.keys(ytPlayer));
-            console.error('Full player:', ytPlayer);
-            
-            // Maybe the player needs more time to fully initialize
-            if (!playerReady) {
-              console.warn('⏳ Player methods not available yet, waiting for onReady...');
-              setTimeout(() => jumpToTime(seconds), 1000);
-            }
+
+          // Find the iframe that was created by YouTube API
+          const iframe = playerDiv.querySelector('iframe');
+          if (!iframe) {
+            console.log('⏳ iframe not found yet, retrying in 500ms...');
+            setTimeout(() => jumpToTime(seconds), 500);
             return;
           }
-          
-          // Player exists and has methods, try to use it
+
           try {
-            console.log(`🎯 Seeking to ${formatTime(seconds)}...`);
-            ytPlayer.seekTo(seconds, true);
-            ytPlayer.playVideo();
+            console.log(`🎯 Sending seek command to iframe: seek to ${formatTime(seconds)}`);
+            
+            // Send commands via postMessage API
+            iframe.contentWindow.postMessage({
+              event: 'command',
+              func: 'seekTo',
+              args: [seconds]
+            }, '*');
+            
+            iframe.contentWindow.postMessage({
+              event: 'command',
+              func: 'playVideo'
+            }, '*');
+            
             console.log(`✅ Jumped to ${formatTime(seconds)}`);
-            if (!playerReady) {
-              console.log('⚠️ Note: Player was not fully ready but command succeeded');
-            }
           } catch(err) {
             console.error('❌ Error jumping to time:', err);
-            // If ytPlayer.seekTo failed, it might be because player isn't ready
-            if (!playerReady) {
-              console.warn('⏳ Player might not be ready yet, retrying in 1 second...');
-              setTimeout(() => jumpToTime(seconds), 1000);
-            }
+            setTimeout(() => jumpToTime(seconds), 1000);
           }
         }
 
