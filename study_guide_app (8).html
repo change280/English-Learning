@@ -1,4 +1,4 @@
-<html lang="en"><head><script type="text/javascript" id="www-widgetapi-script" src="https://www.youtube.com/s/player/c9168c90/www-widgetapi.vflset/www-widgetapi.js" async=""></script><script src="https://www.youtube.com/iframe_api"></script><script>(function(firebaseConfig, initialAuthToken, appId) {
+<html lang="en"><head><script>(function(firebaseConfig, initialAuthToken, appId) {
         window.__firebase_config = firebaseConfig;
         window.__initial_auth_token = initialAuthToken;
         window.__app_id = appId;
@@ -1383,33 +1383,60 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
         // YouTube Player Integration
         let player;
+        let playerReady = false;
+        
         function onYouTubeIframeAPIReady() {
-          player = new YT.Player('player', {
-            height: '100%',
-            width: '100%',
-            videoId: 'YPQ-jHxcSqc',
-            playerVars: { 
-              rel: 0, 
-              modestbranding: 1, 
-              color: 'white',
-              enablejsapi: 1,
-              origin: window.location.origin
-            },
-            events: {
-              onReady: (event) => {
-                console.log('YouTube Player Ready');
+          try {
+            player = new YT.Player('player', {
+              height: '100%',
+              width: '100%',
+              videoId: 'YPQ-jHxcSqc',
+              playerVars: { 
+                rel: 0, 
+                modestbranding: 1, 
+                color: 'white',
+                enablejsapi: 1,
+                origin: window.location.origin,
+                fs: 1
               },
-              onError: (event) => {
-                console.error('YouTube Player Error:', event.data);
+              events: {
+                onReady: (event) => {
+                  playerReady = true;
+                  console.log('✅ YouTube Player Ready');
+                  updatePlayButton();
+                },
+                onStateChange: (event) => {
+                  updatePlayButton();
+                },
+                onError: (event) => {
+                  const errorCodes = {
+                    2: 'Invalid parameter',
+                    5: 'HTML5 player error',
+                    100: 'Video not found',
+                    101: 'Video not allowed to be played embedded',
+                    150: 'Same as 101'
+                  };
+                  console.error('❌ YouTube Player Error:', event.data, errorCodes[event.data] || 'Unknown error');
+                }
               }
-            }
-          });
+            });
+          } catch(err) {
+            console.error('Error initializing YouTube player:', err);
+          }
         }
 
         function jumpToTime(seconds) {
-          if (!player || typeof seconds !== 'number') return;
-          player.seekTo(seconds, true);
-          player.playVideo();
+          if (!player || !playerReady || typeof seconds !== 'number') {
+            console.warn('Cannot jump to time: player not ready or invalid seconds');
+            return;
+          }
+          try {
+            player.seekTo(seconds, true);
+            player.playVideo();
+            console.log(`⏱ Jumped to ${formatTime(seconds)}`);
+          } catch(err) {
+            console.error('Error jumping to time:', err);
+          }
         }
 
         function setTimestampFromPlayer(idx) {
@@ -1646,15 +1673,34 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           renderApp();
         }
 
-        // Load YouTube Iframe API (only if not already loaded)
-        if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-          const tag = document.createElement('script');
-          tag.src = 'https://www.youtube.com/iframe_api';
-          const firstScriptTag = document.getElementsByTagName('script')[0];
-          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        // Load YouTube Iframe API (with retry mechanism)
+        function loadYouTubeAPI() {
+          if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
+            console.log('✅ YouTube API already loaded, initializing player...');
+            onYouTubeIframeAPIReady();
+          } else if (typeof window.YT === 'undefined' || !window.YT.loaded) {
+            console.log('📥 Loading YouTube IFrame API...');
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.async = true;
+            tag.onerror = () => {
+              console.error('❌ Failed to load YouTube API, retrying...');
+              setTimeout(loadYouTubeAPI, 2000);
+            };
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            if (firstScriptTag && firstScriptTag.parentNode) {
+              firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            } else {
+              document.head.appendChild(tag);
+            }
+          }
+        }
+
+        // Wait for DOM to be ready before loading API
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', loadYouTubeAPI);
         } else {
-          // If already loaded, initialize immediately
-          onYouTubeIframeAPIReady();
+          loadYouTubeAPI();
         }
 
         // Kick off progress bar and initial reader settings
@@ -1687,37 +1733,40 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
         // Mobile/Touch Controls
         function togglePlayPause() {
-          if (!player) return;
-          if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-            player.pauseVideo();
-          } else {
-            player.playVideo();
+          if (!player || !playerReady) {
+            console.warn('Player not ready yet');
+            return;
           }
-          updatePlayButton();
+          try {
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+              player.pauseVideo();
+              console.log('⏸ Video paused');
+            } else {
+              player.playVideo();
+              console.log('▶ Video playing');
+            }
+          } catch(err) {
+            console.error('Error toggling play/pause:', err);
+          }
         }
 
         function updatePlayButton() {
-          if (!player) return;
-          const playBtn = document.getElementById('mobile-play-btn');
-          if (!playBtn) return;
-          const state = player.getPlayerState();
-          if (state === YT.PlayerState.PLAYING) {
-            playBtn.innerHTML = '<span class="material-symbols-outlined">pause</span>';
-            playBtn.title = 'Pause';
-          } else {
-            playBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
-            playBtn.title = 'Play';
+          if (!player || !playerReady) return;
+          try {
+            const playBtn = document.getElementById('mobile-play-btn');
+            if (!playBtn) return;
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+              playBtn.innerHTML = '<span class="material-symbols-outlined">pause</span>';
+              playBtn.title = 'Pause (⏸)';
+            } else {
+              playBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
+              playBtn.title = 'Play (▶)';
+            }
+          } catch(err) {
+            console.error('Error updating play button:', err);
           }
-        }
-
-        // Update button when player state changes
-        if (window.onYouTubeIframeAPIReady_original === undefined) {
-          window.onYouTubeIframeAPIReady_original = onYouTubeIframeAPIReady;
-          onYouTubeIframeAPIReady = function() {
-            window.onYouTubeIframeAPIReady_original();
-            // Add state change listener
-            player.addEventListener('onStateChange', updatePlayButton);
-          };
         }
 
     </script>
