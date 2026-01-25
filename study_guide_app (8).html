@@ -765,7 +765,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     <section class="max-w-7xl mx-auto px-6 -mt-6">
       <div class="surface-card rounded-2xl p-4 shadow-md">
         <div class="relative w-full" style="padding-top: 56.25%;">
-          <div id="player" class="absolute inset-0 rounded-xl overflow-hidden bg-black"></div>
+          <iframe id="player" class="absolute inset-0 rounded-xl overflow-hidden bg-black" frameborder="0" allowfullscreen="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="How Art Helped Me Grapple with Grief | Navied Mahdavian | TED" width="100%" height="100%" src="https://www.youtube.com/embed/YPQ-jHxcSqc?rel=0&amp;modestbranding=1&amp;color=white&amp;enablejsapi=1&amp;origin=http%3A%2F%2F127.0.0.1%3A5500&amp;widgetid=1&amp;forigin=http%3A%2F%2F127.0.0.1%3A5500%2Fstudy_guide_app%2520(5).html&amp;aoriginsup=1&amp;gporigin=http%3A%2F%2F127.0.0.1%3A5500%2Fstudy_guide_app%2520(5).html&amp;vf=1"></iframe>
         </div>
         <div class="flex flex-wrap gap-2 mt-3 text-sm text-slate-600 items-center">
           <span class="pill-button" style="background: #eef2ff; color: #4338ca; border-color: #c7d2fe;">YouTube • Interactive</span>
@@ -1382,91 +1382,12 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         // --- INTERACTION LOGIC ---
 
         // YouTube Player Integration
-        let ytPlayer;  // Use 'ytPlayer' instead of 'player' to avoid conflicts with obfuscated code
+        let player;
         let playerReady = false;
-
-        // Mobile/Touch Controls - Define BEFORE using them
-        function togglePlayPause() {
-          console.log('▶⏸ togglePlayPause called');
-          console.log('  - ytPlayer exists:', !!ytPlayer);
-          console.log('  - playerReady:', playerReady);
-          
-          if (!ytPlayer) {
-            console.error('❌ YouTube player object not initialized');
-            return;
-          }
-          
-          if (!playerReady) {
-            console.error('❌ Player not ready (playerReady=false)');
-            return;
-          }
-          
-          try {
-            const state = ytPlayer.getPlayerState();
-            console.log('  - current state:', state);
-            console.log('  - YT.PlayerState.PLAYING:', YT.PlayerState.PLAYING);
-            console.log('  - YT.PlayerState.BUFFERING:', YT.PlayerState.BUFFERING);
-            
-            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
-              console.log('  → Pausing video...');
-              player.pauseVideo();
-              console.log('✅ Video paused');
-            } else {
-              console.log('  → Playing video...');
-              player.playVideo();
-              console.log('✅ Video playing');
-            }
-            updatePlayButton();
-          } catch(err) {
-            console.error('❌ Error toggling play/pause:', err);
-          }
-        }
-
-        function updatePlayButton() {
-          const playBtn = document.getElementById('mobile-play-btn');
-          if (!playBtn) {
-            console.warn('⚠️ mobile-play-btn not found in DOM');
-            return;
-          }
-          
-          if (!player || !playerReady) {
-            console.warn('⚠️ Player not ready, cannot update button');
-            return;
-          }
-          
-          try {
-            const state = player.getPlayerState();
-            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
-              playBtn.innerHTML = '<span class="material-symbols-outlined">pause</span>';
-              playBtn.title = 'Pause (⏸)';
-              console.log('📌 Button updated to: pause');
-            } else {
-              playBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
-              playBtn.title = 'Play (▶)';
-              console.log('📌 Button updated to: play');
-            }
-          } catch(err) {
-            console.error('❌ Error updating play button:', err);
-          }
-        }
         
-        // Initialize YouTube player after API is loaded
-        function initializeYouTubePlayer() {
-          console.log('🔄 Attempting to initialize YouTube player...');
-          console.log('YT available:', typeof YT !== 'undefined');
-          console.log('YT.Player available:', typeof YT !== 'undefined' && typeof YT.Player !== 'undefined');
-          
-          if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-            console.warn('⏳ YouTube API not loaded yet, retrying in 500ms...');
-            setTimeout(initializeYouTubePlayer, 500);
-            return;
-          }
-
+        function onYouTubeIframeAPIReady() {
           try {
-            console.log('📝 Creating YT.Player instance...');
-            console.log('Container element:', document.getElementById('player'));
-            
-            ytPlayer = new YT.Player('player', {
+            player = new YT.Player('player', {
               height: '100%',
               width: '100%',
               videoId: 'YPQ-jHxcSqc',
@@ -1476,19 +1397,15 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 color: 'white',
                 enablejsapi: 1,
                 origin: window.location.origin,
-                fs: 1,
-                autoplay: 0
+                fs: 1
               },
               events: {
                 onReady: (event) => {
-                  console.log('🎯 onReady event fired!');
-                  console.log('Player object:', event.target);
                   playerReady = true;
-                  console.log('✅ YouTube Player Ready! (playerReady set to true)');
+                  console.log('✅ YouTube Player Ready');
                   updatePlayButton();
                 },
                 onStateChange: (event) => {
-                  console.log('📊 Player state changed:', event.data);
                   updatePlayButton();
                 },
                 onError: (event) => {
@@ -1500,88 +1417,31 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     150: 'Same as 101'
                   };
                   console.error('❌ YouTube Player Error:', event.data, errorCodes[event.data] || 'Unknown error');
-                  console.error('Origin:', window.location.origin);
-                  console.error('Video ID:', 'YPQ-jHxcSqc');
                 }
               }
             });
-            
-            console.log('📝 YT.Player instance created');
-            console.log('Player type:', typeof ytPlayer);
-            console.log('Player constructor:', ytPlayer?.constructor?.name);
-            console.log('Player has seekTo:', typeof ytPlayer?.seekTo === 'function');
-            console.log('Full player object:', ytPlayer);
-            
-            // Fallback: If onReady doesn't fire within 3 seconds, force set playerReady
-            setTimeout(() => {
-              if (!playerReady && ytPlayer) {
-                console.warn('⚠️ onReady event did not fire within 3 seconds, forcing playerReady=true');
-                playerReady = true;
-                console.log('Player after 3s - has seekTo:', typeof ytPlayer?.seekTo === 'function');
-                updatePlayButton();
-              }
-            }, 3000);
-            
           } catch(err) {
-            console.error('❌ Error initializing YouTube player:', err);
-            console.error('Error stack:', err.stack);
+            console.error('Error initializing YouTube player:', err);
           }
         }
 
-        // Make the callback global for YouTube API
-        window.onYouTubeIframeAPIReady = function() {
-          console.log('🎬 YouTube API callback triggered!');
-          initializeYouTubePlayer();
-        };
-
         function jumpToTime(seconds) {
-          console.log(`📍 jumpToTime called with ${seconds} seconds`);
-          
-          if (typeof seconds !== 'number') {
-            console.error('❌ Invalid seconds parameter:', seconds);
+          if (!player || !playerReady || typeof seconds !== 'number') {
+            console.warn('Cannot jump to time: player not ready or invalid seconds');
             return;
           }
-
-          // Use YouTube embed's postMessage API to control video
-          const playerDiv = document.getElementById('player');
-          if (!playerDiv) {
-            console.error('❌ Player container not found');
-            return;
-          }
-
-          // Find the iframe that was created by YouTube API
-          const iframe = playerDiv.querySelector('iframe');
-          if (!iframe) {
-            console.log('⏳ iframe not found yet, retrying in 500ms...');
-            setTimeout(() => jumpToTime(seconds), 500);
-            return;
-          }
-
           try {
-            console.log(`🎯 Sending seek command to iframe: seek to ${formatTime(seconds)}`);
-            
-            // Send commands via postMessage API
-            iframe.contentWindow.postMessage({
-              event: 'command',
-              func: 'seekTo',
-              args: [seconds]
-            }, '*');
-            
-            iframe.contentWindow.postMessage({
-              event: 'command',
-              func: 'playVideo'
-            }, '*');
-            
-            console.log(`✅ Jumped to ${formatTime(seconds)}`);
+            player.seekTo(seconds, true);
+            player.playVideo();
+            console.log(`⏱ Jumped to ${formatTime(seconds)}`);
           } catch(err) {
-            console.error('❌ Error jumping to time:', err);
-            setTimeout(() => jumpToTime(seconds), 1000);
+            console.error('Error jumping to time:', err);
           }
         }
 
         function setTimestampFromPlayer(idx) {
-          if (!ytPlayer || !ytPlayer.getCurrentTime || !transcriptData[idx]) return;
-          const current = Math.floor(ytPlayer.getCurrentTime());
+          if (!player || !player.getCurrentTime || !transcriptData[idx]) return;
+          const current = Math.floor(player.getCurrentTime());
           transcriptData[idx].t = current;
           persistTimestamps();
           renderTranscript();
@@ -1813,97 +1673,35 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           renderApp();
         }
 
-        // Load YouTube Iframe API
+        // Load YouTube Iframe API (with retry mechanism)
         function loadYouTubeAPI() {
-          console.log('🔍 Checking YouTube API...');
-          console.log('  - document.readyState:', document.readyState);
-          console.log('  - typeof YT:', typeof window.YT);
-          console.log('  - typeof YT.Player:', typeof window.YT?.Player);
-          
-          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined') {
-            console.log('✅ YouTube API already loaded!');
-            // API is already loaded, wait a bit for it to fully initialize
-            setTimeout(initializeYouTubePlayer, 100);
-            return;
+          if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
+            console.log('✅ YouTube API already loaded, initializing player...');
+            onYouTubeIframeAPIReady();
+          } else if (typeof window.YT === 'undefined' || !window.YT.loaded) {
+            console.log('📥 Loading YouTube IFrame API...');
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.async = true;
+            tag.onerror = () => {
+              console.error('❌ Failed to load YouTube API, retrying...');
+              setTimeout(loadYouTubeAPI, 2000);
+            };
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            if (firstScriptTag && firstScriptTag.parentNode) {
+              firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            } else {
+              document.head.appendChild(tag);
+            }
           }
-
-          // Only load script once
-          if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-            console.log('⏳ YouTube API script already added, waiting for callback...');
-            setTimeout(() => {
-              if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined') {
-                console.log('✅ YouTube API loaded after wait');
-                initializeYouTubePlayer();
-              }
-            }, 1000);
-            return;
-          }
-
-          console.log('📥 Loading YouTube IFrame API from CDN...');
-          const tag = document.createElement('script');
-          tag.src = 'https://www.youtube.com/iframe_api';
-          tag.async = true;
-          tag.defer = false;
-          
-          tag.onload = () => {
-            console.log('📦 YouTube API script loaded');
-            setTimeout(() => {
-              if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined') {
-                console.log('✅ YouTube API ready after onload');
-                initializeYouTubePlayer();
-              }
-            }, 100);
-          };
-          
-          tag.onerror = () => {
-            console.error('❌ Failed to load YouTube API script');
-            setTimeout(loadYouTubeAPI, 2000);
-          };
-          
-          document.head.appendChild(tag);
         }
 
-        // Load API immediately
-        console.log('⚡ Script execution started');
+        // Wait for DOM to be ready before loading API
         if (document.readyState === 'loading') {
-          console.log('📄 Document still loading, waiting for DOMContentLoaded...');
-          document.addEventListener('DOMContentLoaded', () => {
-            console.log('✔️ DOMContentLoaded fired');
-            loadYouTubeAPI();
-          }, { once: true });
+          document.addEventListener('DOMContentLoaded', loadYouTubeAPI);
         } else {
-          console.log('✔️ Document already loaded, loading YouTube API now...');
           loadYouTubeAPI();
         }
-
-        // Fallback: Check and initialize player after a delay if not already done
-        setTimeout(() => {
-          console.log('🔍 Fallback check: playerReady=', playerReady, ', ytPlayer=', !!ytPlayer);
-          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !ytPlayer) {
-            console.log('📡 API loaded but player not initialized, initializing now...');
-            initializeYouTubePlayer();
-          }
-        }, 2000);
-
-        // Another fallback at 5 seconds
-        setTimeout(() => {
-          console.log('🔍 Second fallback check: playerReady=', playerReady, ', ytPlayer=', !!ytPlayer);
-          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !ytPlayer) {
-            console.log('📡 Still no player, forcing initialization...');
-            initializeYouTubePlayer();
-          }
-        }, 5000);
-
-        // Final fallback: Force playerReady if player exists but onReady didn't fire
-        setTimeout(() => {
-          console.log('🔍 Final fallback: playerReady=', playerReady, ', ytPlayer=', !!ytPlayer);
-          if (ytPlayer && !playerReady) {
-            console.warn('⚠️ Player exists but playerReady is still false, forcing it now...');
-            playerReady = true;
-            console.log('✅ playerReady forced to true');
-            updatePlayButton();
-          }
-        }, 8000);
 
         // Kick off progress bar and initial reader settings
         updateProgress();
@@ -1934,6 +1732,42 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 }
 
         // Mobile/Touch Controls
+        function togglePlayPause() {
+          if (!player || !playerReady) {
+            console.warn('Player not ready yet');
+            return;
+          }
+          try {
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+              player.pauseVideo();
+              console.log('⏸ Video paused');
+            } else {
+              player.playVideo();
+              console.log('▶ Video playing');
+            }
+          } catch(err) {
+            console.error('Error toggling play/pause:', err);
+          }
+        }
+
+        function updatePlayButton() {
+          if (!player || !playerReady) return;
+          try {
+            const playBtn = document.getElementById('mobile-play-btn');
+            if (!playBtn) return;
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+              playBtn.innerHTML = '<span class="material-symbols-outlined">pause</span>';
+              playBtn.title = 'Pause (⏸)';
+            } else {
+              playBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
+              playBtn.title = 'Play (▶)';
+            }
+          } catch(err) {
+            console.error('Error updating play button:', err);
+          }
+        }
 
     </script>
 
