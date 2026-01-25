@@ -765,7 +765,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     <section class="max-w-7xl mx-auto px-6 -mt-6">
       <div class="surface-card rounded-2xl p-4 shadow-md">
         <div class="relative w-full" style="padding-top: 56.25%;">
-          <iframe id="player" class="absolute inset-0 rounded-xl overflow-hidden bg-black" frameborder="0" allowfullscreen="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="How Art Helped Me Grapple with Grief | Navied Mahdavian | TED" width="100%" height="100%" src="https://www.youtube.com/embed/YPQ-jHxcSqc?rel=0&amp;modestbranding=1&amp;color=white&amp;enablejsapi=1&amp;origin=http%3A%2F%2F127.0.0.1%3A5500&amp;widgetid=1&amp;forigin=http%3A%2F%2F127.0.0.1%3A5500%2Fstudy_guide_app%2520(5).html&amp;aoriginsup=1&amp;gporigin=http%3A%2F%2F127.0.0.1%3A5500%2Fstudy_guide_app%2520(5).html&amp;vf=1"></iframe>
+          <div id="player" class="absolute inset-0 rounded-xl overflow-hidden bg-black"></div>
         </div>
         <div class="flex flex-wrap gap-2 mt-3 text-sm text-slate-600 items-center">
           <span class="pill-button" style="background: #eef2ff; color: #4338ca; border-color: #c7d2fe;">YouTube • Interactive</span>
@@ -1450,28 +1450,48 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         function jumpToTime(seconds) {
           console.log(`📍 jumpToTime called with ${seconds} seconds, playerReady=${playerReady}, player=${!!player}`);
           
-          if (!player) {
-            console.error('❌ Player object not created yet');
-            return;
-          }
-          
-          if (!playerReady) {
-            console.error('❌ Player not ready yet (playerReady flag is false)');
-            return;
-          }
-          
           if (typeof seconds !== 'number') {
             console.error('❌ Invalid seconds parameter:', seconds);
             return;
           }
 
+          // If player not created, initialize it first
+          if (!player) {
+            console.warn('⏳ Player not created yet, attempting to initialize...');
+            // Wait for API to load and player to be created
+            const checkInterval = setInterval(() => {
+              if (player && playerReady) {
+                clearInterval(checkInterval);
+                jumpToTime(seconds); // Retry with player ready
+              }
+            }, 100);
+            
+            // Give it 5 seconds max to initialize
+            setTimeout(() => {
+              if (checkInterval) clearInterval(checkInterval);
+              if (!player) {
+                console.error('❌ Player still not initialized after 5 seconds');
+              }
+            }, 5000);
+            return;
+          }
+          
+          // Player exists, try to use it even if not fully ready
           try {
             console.log(`🎯 Seeking to ${formatTime(seconds)}...`);
             player.seekTo(seconds, true);
             player.playVideo();
             console.log(`✅ Jumped to ${formatTime(seconds)}`);
+            if (!playerReady) {
+              console.log('⚠️ Note: Player was not fully ready but command succeeded');
+            }
           } catch(err) {
             console.error('❌ Error jumping to time:', err);
+            // If player.seekTo failed, it might be because player isn't ready
+            if (!playerReady) {
+              console.warn('⏳ Player might not be ready yet, retrying in 1 second...');
+              setTimeout(() => jumpToTime(seconds), 1000);
+            }
           }
         }
 
@@ -1771,6 +1791,24 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           console.log('✔️ Document already loaded, loading YouTube API now...');
           loadYouTubeAPI();
         }
+
+        // Fallback: Check and initialize player after a delay if not already done
+        setTimeout(() => {
+          console.log('🔍 Fallback check: playerReady=', playerReady, ', player=', !!player);
+          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !player) {
+            console.log('📡 API loaded but player not initialized, initializing now...');
+            initializeYouTubePlayer();
+          }
+        }, 2000);
+
+        // Another fallback at 5 seconds
+        setTimeout(() => {
+          console.log('🔍 Second fallback check: playerReady=', playerReady, ', player=', !!player);
+          if (typeof window.YT !== 'undefined' && typeof window.YT.Player !== 'undefined' && !player) {
+            console.log('📡 Still no player, forcing initialization...');
+            initializeYouTubePlayer();
+          }
+        }, 5000);
 
         // Kick off progress bar and initial reader settings
         updateProgress();
