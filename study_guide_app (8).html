@@ -1464,6 +1464,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 
           try {
             console.log('📝 Creating YT.Player instance...');
+            console.log('Container element:', document.getElementById('player'));
+            
             player = new YT.Player('player', {
               height: '100%',
               width: '100%',
@@ -1480,6 +1482,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
               events: {
                 onReady: (event) => {
                   console.log('🎯 onReady event fired!');
+                  console.log('Player object:', event.target);
                   playerReady = true;
                   console.log('✅ YouTube Player Ready! (playerReady set to true)');
                   updatePlayButton();
@@ -1502,13 +1505,19 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 }
               }
             });
-            console.log('📝 YT.Player instance created, waiting for onReady event...');
+            
+            console.log('📝 YT.Player instance created');
+            console.log('Player type:', typeof player);
+            console.log('Player constructor:', player?.constructor?.name);
+            console.log('Player has seekTo:', typeof player?.seekTo === 'function');
+            console.log('Full player object:', player);
             
             // Fallback: If onReady doesn't fire within 3 seconds, force set playerReady
             setTimeout(() => {
               if (!playerReady && player) {
                 console.warn('⚠️ onReady event did not fire within 3 seconds, forcing playerReady=true');
                 playerReady = true;
+                console.log('Player after 3s - has seekTo:', typeof player?.seekTo === 'function');
                 updatePlayButton();
               }
             }, 3000);
@@ -1554,7 +1563,23 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             return;
           }
           
-          // Player exists, try to use it even if not fully ready
+          // Check if player has the required methods
+          if (typeof player.seekTo !== 'function') {
+            console.error('❌ Player object does not have seekTo method');
+            console.error('Player type:', typeof player);
+            console.error('Player constructor:', player?.constructor?.name);
+            console.error('Player keys:', Object.keys(player));
+            console.error('Full player:', player);
+            
+            // Maybe the player needs more time to fully initialize
+            if (!playerReady) {
+              console.warn('⏳ Player methods not available yet, waiting for onReady...');
+              setTimeout(() => jumpToTime(seconds), 1000);
+            }
+            return;
+          }
+          
+          // Player exists and has methods, try to use it
           try {
             console.log(`🎯 Seeking to ${formatTime(seconds)}...`);
             player.seekTo(seconds, true);
