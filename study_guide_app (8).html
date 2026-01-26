@@ -78,66 +78,6 @@ window.addEventListener("message",a=>t(function*(){if(za.some(d=>a.origin.includ
   if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
       const { success, token, error, promiseId } = messageData ?? {};
       if (pendingTokenPromises[promiseId]) {
-        if (success) {
-          pendingTokenPromises[promiseId].resolve(token);
-        } else {
-          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
-        }
-        delete pendingTokenPromises[promiseId];
-      }
-    }
-  });
-
-  // Expose a function for the Generated App to request a new Firebase token
-  window.requestNewFirebaseToken = function() {
-    const currentPromiseId = nextTokenPromiseId++;
-    const promise = new Promise((resolve, reject) => {
-      pendingTokenPromises[currentPromiseId] = { resolve, reject };
-    });
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({
-        type: 'REQUEST_NEW_FIREBASE_TOKEN',
-        promiseId: currentPromiseId
-      }, '*');
-    } else {
-      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
-      delete pendingTokenPromises[currentPromiseId];
-    }
-    return promise;
-  };
-})();</script><script>
-let realOriginalGetUserMedia = null;
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
-}
-
-(function() {
-  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
-    try {
-      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
-        get: function() {
-          return undefined; // Or throw an error
-        },
-        configurable: false
-      });
-    } catch (error) {
-      console.error("Error defining prototype getter:", error);
-    }
-  }
-})();
-
-(function() {
-  const pendingMediaResolvers = {};
-  let nextMediaPromiseId = 0;
-
-  function requestMediaPermissions(constraints) {
-    const mediaPromiseId = nextMediaPromiseId++;
-    const promise = new Promise((resolve, reject) => {
-      pendingMediaResolvers[mediaPromiseId] = (granted) => {
-        delete pendingMediaResolvers[mediaPromiseId];
-        resolve(granted);
-      };
-    });
 
     window.parent.postMessage({
       type: 'requestMediaPermission',
@@ -1385,71 +1325,6 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         let ytPlayer;  // Use 'ytPlayer' instead of 'player' to avoid conflicts with obfuscated code
         let playerReady = false;
 
-        // Mobile/Touch Controls - Define BEFORE using them
-        function togglePlayPause() {
-          console.log('▶⏸ togglePlayPause called');
-          console.log('  - ytPlayer exists:', !!ytPlayer);
-          console.log('  - playerReady:', playerReady);
-          
-          if (!ytPlayer) {
-            console.error('❌ YouTube player object not initialized');
-            return;
-          }
-          
-          if (!playerReady) {
-            console.error('❌ Player not ready (playerReady=false)');
-            return;
-          }
-          
-          try {
-            const state = ytPlayer.getPlayerState();
-            console.log('  - current state:', state);
-            console.log('  - YT.PlayerState.PLAYING:', YT.PlayerState.PLAYING);
-            console.log('  - YT.PlayerState.BUFFERING:', YT.PlayerState.BUFFERING);
-            
-            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
-              console.log('  → Pausing video...');
-              player.pauseVideo();
-              console.log('✅ Video paused');
-            } else {
-              console.log('  → Playing video...');
-              player.playVideo();
-              console.log('✅ Video playing');
-            }
-            updatePlayButton();
-          } catch(err) {
-            console.error('❌ Error toggling play/pause:', err);
-          }
-        }
-
-        function updatePlayButton() {
-          const playBtn = document.getElementById('mobile-play-btn');
-          if (!playBtn) {
-            console.warn('⚠️ mobile-play-btn not found in DOM');
-            return;
-          }
-          
-          if (!player || !playerReady) {
-            console.warn('⚠️ Player not ready, cannot update button');
-            return;
-          }
-          
-          try {
-            const state = player.getPlayerState();
-            if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
-              playBtn.innerHTML = '<span class="material-symbols-outlined">pause</span>';
-              playBtn.title = 'Pause (⏸)';
-              console.log('📌 Button updated to: pause');
-            } else {
-              playBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
-              playBtn.title = 'Play (▶)';
-              console.log('📌 Button updated to: play');
-            }
-          } catch(err) {
-            console.error('❌ Error updating play button:', err);
-          }
-        }
-        
         // Initialize YouTube player after API is loaded
         function initializeYouTubePlayer() {
           console.log('🔄 Attempting to initialize YouTube player...');
@@ -1485,11 +1360,9 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                   console.log('Player object:', event.target);
                   playerReady = true;
                   console.log('✅ YouTube Player Ready! (playerReady set to true)');
-                  updatePlayButton();
                 },
                 onStateChange: (event) => {
                   console.log('📊 Player state changed:', event.data);
-                  updatePlayButton();
                 },
                 onError: (event) => {
                   const errorCodes = {
@@ -1518,7 +1391,6 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 console.warn('⚠️ onReady event did not fire within 3 seconds, forcing playerReady=true');
                 playerReady = true;
                 console.log('Player after 3s - has seekTo:', typeof ytPlayer?.seekTo === 'function');
-                updatePlayButton();
               }
             }, 3000);
             
@@ -1920,7 +1792,6 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             console.warn('⚠️ Player exists but playerReady is still false, forcing it now...');
             playerReady = true;
             console.log('✅ playerReady forced to true');
-            updatePlayButton();
           }
         }, 8000);
 
@@ -1959,10 +1830,6 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     <!-- Mobile Control Bar (固定在底部) -->
     <div id="mobile-control-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg lg:hidden">
       <div class="max-w-7xl mx-auto px-4 py-3 flex justify-center items-center gap-2 flex-wrap">
-        <button id="mobile-play-btn" onclick="togglePlayPause()" class="p-3 rounded-lg border border-slate-200 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-md">
-          <span class="material-symbols-outlined text-xl">play_arrow</span>
-        </button>
-        
         <button onclick="toggleTranslations()" class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-800 bg-white hover:bg-slate-50 transition flex items-center gap-2">
           <span class="material-symbols-outlined text-base">translate</span>
           <span class="hidden sm:inline">中英</span>
