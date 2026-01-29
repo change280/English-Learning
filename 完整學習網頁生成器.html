@@ -288,39 +288,39 @@
     <!-- Bottom Control Bar (Will be kept in export) -->
     <div id="bottom-controls" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40 px-3 py-2">
         <div class="flex flex-nowrap justify-center gap-2">
-            <button id="play-pause-btn" onclick="togglePlayPause()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all">
+            <button id="play-pause-btn" onclick="togglePlayPause()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all">
                 <span class="material-symbols-outlined text-lg" id="play-icon">play_arrow</span>
-                <span id="play-text" class="text-sm">播放</span>
+                <span id="play-text" class="hidden sm:inline text-sm">播放</span>
             </button>
             
             <div class="flex items-center rounded-xl border border-slate-300 bg-slate-100 overflow-hidden">
-                <button onclick="decreaseFontSize()" class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-200 active:bg-slate-300 transition">
+                <button onclick="decreaseFontSize()" class="px-2 py-2 text-sm text-slate-700 hover:bg-slate-200 active:bg-slate-300 transition">
                     <span class="material-symbols-outlined text-base">text_decrease</span>
                 </button>
                 <div class="w-px h-6 bg-slate-300"></div>
-                <button onclick="increaseFontSize()" class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-200 active:bg-slate-300 transition">
+                <button onclick="increaseFontSize()" class="px-2 py-2 text-sm text-slate-700 hover:bg-slate-200 active:bg-slate-300 transition">
                     <span class="material-symbols-outlined text-base">text_increase</span>
                 </button>
             </div>
             
             <div class="flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden">
-                <button onclick="decreasePlaybackSpeed()" class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition">
+                <button onclick="decreasePlaybackSpeed()" class="px-2 py-2 text-sm text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition">
                     <span class="material-symbols-outlined text-base">remove</span>
                 </button>
                 <div class="w-px h-6 bg-slate-300"></div>
-                <div class="flex items-center px-3 py-2 text-sm font-bold min-w-[60px] justify-center text-slate-700">
+                <div class="flex items-center px-2 py-2 text-sm font-bold min-w-[50px] justify-center text-slate-700">
                     <span id="speed-display">1.0x</span>
                 </div>
                 <div class="w-px h-6 bg-slate-300"></div>
-                <button onclick="increasePlaybackSpeed()" class="px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition">
+                <button onclick="increasePlaybackSpeed()" class="px-2 py-2 text-sm text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition">
                     <span class="material-symbols-outlined text-base">add</span>
                 </button>
             </div>
             
-            <button onclick="toggleTranslations()" class="hidden min-[390px]:flex items-center px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-medium active:bg-blue-100 hover:bg-blue-100 transition">
+            <button onclick="toggleTranslations()" class="hidden sm:flex items-center px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-medium active:bg-blue-100 hover:bg-blue-100 transition">
                 <span class="material-symbols-outlined text-base">translate</span> <span id="cn-toggle-text">中文</span>
             </button>
-            <button onclick="resetSettings()" class="hidden min-[390px]:block px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 text-sm font-medium hover:bg-slate-100 active:bg-slate-200 transition">
+            <button onclick="resetSettings()" class="hidden sm:block px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 text-sm font-medium hover:bg-slate-100 active:bg-slate-200 transition">
                 <span class="material-symbols-outlined text-base">restart_alt</span>
             </button>
         </div>
@@ -1248,6 +1248,8 @@
         
         function toggleCard(e, id) {
             e.stopPropagation();
+            e.preventDefault();
+            
             // 如果已經顯示同一個字卡，則關閉
             if (!floatingCard.classList.contains('hidden') && floatingCard.dataset.currentId === id) {
                 hideCard();
@@ -1263,12 +1265,15 @@
         
         // 點擊外部關閉字卡
         document.addEventListener('click', function(e) {
-            if (!floatingCard.classList.contains('hidden') && 
-                !floatingCard.contains(e.target) && 
-                !e.target.classList.contains('vocab-word') && 
-                !e.target.classList.contains('vocab-word-custom')) {
-                hideCard();
-            }
+            // 延遲執行，讓 toggleCard 先完成
+            setTimeout(() => {
+                if (!floatingCard.classList.contains('hidden') && 
+                    !floatingCard.contains(e.target) && 
+                    !e.target.closest('.vocab-word') && 
+                    !e.target.closest('.vocab-word-custom')) {
+                    hideCard();
+                }
+            }, 100);
         });
 
         function toggleTranslations() {
