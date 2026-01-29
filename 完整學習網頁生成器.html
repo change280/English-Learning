@@ -1660,8 +1660,12 @@
                 `let videoId = localStorage.getItem('videoId') || '';`
             );
             html = html.replace(
-                /let quizData = \[.*?\];/s,
+                /let quizData = (?:\[.*?\]|\{.*?\});/s,
                 `let quizData = ${JSON.stringify(quizData)};`
+            );
+            html = html.replace(
+                /let selectedWords = (?:\[.*?\]|JSON\.parse\(localStorage\.getItem\('selectedWords'\) \|\| '\[\]'\));/s,
+                `let selectedWords = ${JSON.stringify(selectedWords)};`
             );
 
             // 確保 player 是空的 div，不要包含 iframe
