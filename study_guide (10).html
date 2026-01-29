@@ -1015,7 +1015,7 @@
         let quizData = JSON.parse(localStorage.getItem('quizData') || '[]');
         let quizLanguage = 'english'; // 'english' or 'chinese'
         let videoId = localStorage.getItem('videoId') || '';
-        let selectedWords = JSON.parse(localStorage.getItem('selectedWords') || '[]');
+        let selectedWords = ["pandemic","premature"];
         let translationsVisible = false;
         let player;
         let playerReady = false;
@@ -2210,8 +2210,12 @@
                 `let videoId = localStorage.getItem('videoId') || '';`
             );
             html = html.replace(
-                /let quizData = \[.*?\];/s,
+                /let quizData = (?:\[.*?\]|\{.*?\});/s,
                 `let quizData = ${JSON.stringify(quizData)};`
+            );
+            html = html.replace(
+                /let selectedWords = (?:\[.*?\]|JSON\.parse\(localStorage\.getItem\('selectedWords'\) \|\| '\[\]'\));/s,
+                `let selectedWords = ${JSON.stringify(selectedWords)};`
             );
 
             // 確保 player 是空的 div，不要包含 iframe
