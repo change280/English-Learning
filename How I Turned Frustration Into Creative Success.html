@@ -1,0 +1,2890 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整學習網頁生成器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&amp;family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafb 0%, #f0f4f8 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .vocab-word { 
+            border-bottom: 2px solid #60a5fa; 
+            cursor: pointer; 
+            color: #2563eb; 
+            font-weight: 600; 
+            transition: all 0.2s ease; 
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        .vocab-word:hover { 
+            background-color: #dbeafe;
+            border-bottom-color: #2563eb;
+        }
+        .vocab-word-custom { 
+            border-bottom: 2px solid #f87171; 
+            cursor: pointer; 
+            color: #dc2626; 
+            font-weight: 600; 
+            transition: all 0.2s ease; 
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        .vocab-word-custom:hover { 
+            background-color: #fee2e2;
+            border-bottom-color: #991b1b;
+        }
+        #floating-card { 
+            transition: opacity 0.2s, transform 0.2s ease; 
+            pointer-events: none; 
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal { transition: all 0.3s ease-in-out; }
+        .modal.hidden { opacity: 0; pointer-events: none; }
+        #quiz-modal { transition: all 0.3s ease-in-out; }
+        #quiz-modal.hidden { opacity: 0; pointer-events: none; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .selected-word { 
+            background-color: #fef3c7; 
+            border-bottom: 2px solid #eab308; 
+            font-weight: 600;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        #selection-popup { 
+            transition: all 0.2s ease; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .learning-card {
+            transition: all 0.3s ease;
+        }
+        .learning-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+        
+        /* Sticky video styles */
+        #video-container.sticky-video {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 480px;
+            height: 270px;
+            padding-top: 0 !important;
+            max-width: 90vw;
+            z-index: 1000;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+            border: 2px solid #fff;
+        }
+        
+        #video-container.sticky-video #player {
+            pointer-events: auto;
+        }
+
+        #floating-close-btn {
+            position: fixed;
+            top: 45px;
+            right: 20px;
+            z-index: 1001;
+        }
+
+        @media (max-width: 768px) {
+            #video-container.sticky-video {
+                width: 320px;
+                height: 180px;
+                right: 10px;
+                top: 70px;
+            }
+            
+            #floating-close-btn {
+                top: 35px;
+                right: 10px;
+            }
+        }
+        
+        /* 漢堡選單樣式 */
+        #mobile-menu {
+            transition: all 0.3s ease;
+        }
+        #mobile-menu.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .hamburger-line {
+            transition: all 0.3s ease;
+        }
+        #hamburger-btn.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        #hamburger-btn.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        #hamburger-btn.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+    </style>
+<!-- Code injected by Five-server -->
+  
+  <script src="https://www.youtube.com/iframe_api"></script><style id="_goober"> @keyframes go2264125279{from{transform:scale(0) rotate(45deg);opacity:0;}to{transform:scale(1) rotate(45deg);opacity:1;}}@keyframes go3020080000{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}@keyframes go463499852{from{transform:scale(0) rotate(90deg);opacity:0;}to{transform:scale(1) rotate(90deg);opacity:1;}}@keyframes go1268368563{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}@keyframes go1310225428{from{transform:scale(0) rotate(45deg);opacity:0;}to{transform:scale(1) rotate(45deg);opacity:1;}}@keyframes go651618207{0%{height:0;width:0;opacity:0;}40%{height:0;width:6px;opacity:1;}100%{opacity:1;height:10px;}}@keyframes go901347462{from{transform:scale(0.6);opacity:0.4;}to{transform:scale(1);opacity:1;}}.go4109123758{z-index:9999;}.go4109123758 > *{pointer-events:auto;}</style><style>.rr--group{display:flex;width:100%;position:relative}.rr--box{display:flex;width:100%;flex-grow:1;-webkit-tap-highlight-color:rgba(0,0,0,0)}.rr--svg{display:flex;aspect-ratio:1;width:100%;flex-grow:1;overflow:clip;pointer-events:none}@supports not (overflow: clip){.rr--svg{overflow:auto}}.rr--box:focus,.rr--box:focus-visible,.rr-reset:focus-visible,.rr-reset:focus{outline:none;box-shadow:none}.rr--focus-reset{outline:6px double #0079ff}.rr--box:focus-visible .rr--svg{outline:6px double #0079ff;isolation:isolate}.rr--reset{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0;right:0;bottom:50%}[dir=rtl] .rr--reset{left:0;right:auto}.rr--dir-y .rr--reset{bottom:0;right:50%}.rr--disabled{opacity:.5;cursor:not-allowed}.rr--disabled .rr--svg{pointer-events:none}.rr--pointer .rr--box{cursor:pointer}.rr--dir-x{flex-direction:row}.rr--dir-y{flex-direction:column}.rr--space-sm .rr--svg{padding:8%}.rr--space-md .rr--svg{padding:12.5%}.rr--space-lg .rr--svg{padding:17.5%}.rr--dir-x.rr--gap-sm .rr--svg{margin:0 6.25%}.rr--dir-x.rr--gap-sm .rr--box:focus-visible:after{width:87.5%;left:6.25%}.rr--dir-x.rr--gap-md .rr--svg{margin:0 12.5%}.rr--dir-x.rr--gap-md .rr--box:focus-visible:after{width:75%;left:12.5%}.rr--dir-x.rr--gap-lg .rr--svg{margin:0 25%}.rr--dir-x.rr--gap-lg .rr--box:focus-visible:after{width:50%;left:25%}.rr--dir-y.rr--gap-sm .rr--svg{margin:6.25% 0}.rr--dir-y.rr--gap-md .rr--svg{margin:12.5% 0}.rr--dir-y.rr--gap-lg .rr--svg{margin:25% 0}.rr--rx-sm .rr--svg{border-radius:5%}.rr--rx-md .rr--svg{border-radius:15%}.rr--rx-lg .rr--svg{border-radius:20%}.rr--rx-full .rr--svg{border-radius:100%}.rr--has-stroke .rr--svg{stroke-linecap:round;stroke-linejoin:round}.rr--has-border .rr--svg{border-width:var(--rr--border-width);border-style:solid}.rr--on .rr--svg{fill:var(--rr--fill-on-color, none)}.rr--off .rr--svg{fill:var(--rr--fill-off-color, none)}.rr--has-stroke .rr--on .rr--svg{stroke:var(--rr--stroke-on-color, currentColor)}.rr--has-stroke .rr--off .rr--svg{stroke:var(--rr--stroke-off-color, currentColor)}.rr--on .rr--svg{background-color:var(--rr--box-on-color, none)}.rr--off .rr--svg{background-color:var(--rr--box-off-color, none)}.rr--has-border .rr--off .rr--svg{border-color:var(--rr--border-off-color, currentColor)}.rr--has-border .rr--on .rr--svg{border-color:var(--rr--border-on-color, currentColor)}.rr--fx-colors{--rr--easing: .2s cubic-bezier(.61, 1, .88, 1)}.rr--fx-colors .rr--svg{transition-duration:.2s;transition-timing-function:var(--rr--easing);transition-property:background-color,border-color,fill,stroke}.rr--fx-opacity .rr--off{opacity:.35;transition:opacity var(--rr--easing)}.rr--fx-opacity .rr--on{opacity:1}@media(hover: hover){.rr--fx-opacity .rr--box:hover{opacity:1}}@media(hover: hover){.rr--fx-zoom .rr--box{transition:transform var(--rr--easing);transform:scale(1)}.rr--fx-zoom .rr--box:hover{transform:scale(1.2)}}@media(hover: hover)and (prefers-reduced-motion){.rr--fx-zoom .rr--box:hover{transform:scale(1)}}@media(hover: hover){.rr--fx-position .rr--box{transition:transform var(--rr--easing);transform:translateY(0)}.rr--fx-position .rr--box:hover{transform:translateY(-15%)}}@media(hover: hover)and (prefers-reduced-motion){.rr--fx-position .rr--box:hover{transform:translateY(0)}}.rr--svg-stop-1{stop-color:var(--rr--fill-on-color, rgba(0, 0, 0, 0))}[dir=rtl] .rr--svg-stop-1,.rr--svg-stop-2{stop-color:var(--rr--fill-off-color, rgba(0, 0, 0, 0))}[dir=rtl] .rr--svg-stop-2{stop-color:var(--rr--fill-on-color, rgba(0, 0, 0, 0))}.rr--hf-svg-on{fill:var(--rr--fill-on-color, none)}.rr--hf-svg-off{fill:var(--rr--fill-off-color, none)}.rr--has-stroke .rr--hf-svg-on{stroke:var(--rr--stroke-on-color, currentColor)}.rr--has-stroke .rr--hf-svg-off{stroke:var(--rr--stroke-off-color, currentColor)}.rr--hf-svg-on .rr--svg,.rr--hf-svg-off .rr--svg{background-color:var(--rr--box-off-color, none)}.rr--has-border .rr--hf-svg-on .rr--svg{border-color:var(--rr--border-on-color, currentColor)}.rr--has-border .rr--hf-svg-off .rr--svg{border-color:var(--rr--border-off-color, currentColor)}.rr--dir-x .rr--hf-box-int .rr--svg{background:linear-gradient(to right, var(--rr--box-on-color, none) 50%, var(--rr--box-off-color, none) 50%)}[dir=rtl] .rr--dir-x .rr--hf-box-int .rr--svg{background:linear-gradient(to left, var(--rr--box-on-color, none) 50%, var(--rr--box-off-color, none) 50%)}.rr--dir-y .rr--hf-box-int .rr--svg{background:linear-gradient(to bottom, var(--rr--box-on-color, none) 50%, var(--rr--box-off-color, none) 50%)}.rr--hf-box-on .rr--svg{background-color:var(--rr--box-on-color, none)}.rr--hf-box-off .rr--svg{background-color:var(--rr--box-off-color, none)}.rr--hf-box-on .rr--svg,.rr--hf-box-off .rr--svg,.rr--hf-box-int .rr--svg{fill:var(--rr--fill-off-color, none)}.rr--has-stroke .rr--hf-box-on .rr--svg,.rr--has-stroke .rr--hf-box-off .rr--svg,.rr--has-stroke .rr--hf-box-int .rr--svg{stroke:var(--rr--stroke-off-color, currentColor)}.rr--has-border .rr--hf-box-on .rr--svg,.rr--has-border .rr--hf-box-int .rr--svg{border-color:var(--rr--border-on-color, currentColor)}.rr--has-border .rr--hf-box-off .rr--svg{border-color:var(--rr--border-off-color, currentColor)}</style><style>.kw-overview-container{box-sizing:border-box;width:673px;padding:0;margin:0;margin-top:14px;font-size:12px;font-family:Figtree;-webkit-font-smoothing:antialiased}.kw-overview-container.youtube{box-sizing:border-box;width:645px;padding:0;margin:0;font-size:12px}</style></head>
+<body class="text-slate-700">
+
+    <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                        <div class="flex justify-between h-16 items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white text-xl">school</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="font-bold text-lg text-slate-900">StudyEngine</div>
+                                    <div class="text-xs text-slate-500 hidden sm:block">英語學習平台</div>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <button onclick="toggleExportMenu()" class="px-3 py-2 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 transition text-sm font-medium flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-lg">bookmark</span>
+                                    <span class="hidden sm:inline">Export Words (</span><span class="sm:hidden">(</span><span id="selected-count">0</span><span>)</span>
+                                </button>
+                                <div id="export-menu" class="hidden absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 min-w-max overflow-hidden">
+                                    <button onclick="copyExportPrompt()" class="w-full px-4 py-2.5 text-left hover:bg-blue-50 border-b border-slate-100 flex items-center gap-2 text-sm" title="複製生成AI指令的Prompt">
+                                        <span class="material-symbols-outlined text-sm text-blue-600">content_copy</span> <span>複製 Prompt</span>
+                                    </button>
+                                    <button onclick="exportSelectedWords()" class="w-full px-4 py-2.5 text-left hover:bg-blue-50 flex items-center gap-2 text-sm" title="下載選中的生字">
+                                        <span class="material-symbols-outlined text-sm text-blue-600">download</span> <span>下載文字檔</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-8 pb-32 space-y-8">
+        
+        <!-- Video Section (Will be included in export) -->
+        <section id="video-section" class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 learning-card">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                    <div class="p-2 bg-red-100 rounded-lg">
+                        <span class="material-symbols-outlined text-red-600 text-2xl">play_circle</span>
+                    </div>
+                    影片播放
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="openModal('video')" class="px-4 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">edit</span> 更換影片
+                    </button>
+                    <button onclick="manualToggleSticky()" class="px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium transition flex items-center gap-2" title="切換浮動模式">
+                        <span class="material-symbols-outlined text-base">picture_in_picture_alt</span> 浮動
+                    </button>
+                </div>
+            </div>
+            <div id="video-container" class="relative w-full bg-black rounded-xl overflow-hidden" style="padding-top: 56.25%;">
+                <div id="player" class="absolute inset-0"></div>
+                <button id="close-sticky-video" class="absolute top-2 right-2 z-10 p-1.5 bg-black/70 hover:bg-black/90 rounded-lg text-white transition hidden">
+                </button>
+            </div>
+            <div id="video-placeholder" class="w-full hidden" style="padding-top: 30%;"></div>
+            <p class="text-sm text-slate-600 mt-3">
+                點擊時間標籤跳轉到指定時間
+            </p>
+        </section>
+
+        <!-- Floating close button -->
+        <button id="floating-close-btn" class="p-2 bg-white/95 hover:bg-white rounded-full text-slate-700 hover:text-slate-900 shadow-lg hover:shadow-xl transition-all hover:scale-110 hidden">
+            <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Transcript -->
+            <main class="lg:w-2/3 bg-white p-8 rounded-2xl shadow-lg">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 id="transcript-title" class="text-2xl font-bold text-slate-900">逐字稿</h2>
+                    <button onclick="toggleTranslations()" class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-sm font-medium transition flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base">translate</span> <span id="toggle-btn-text">顯示中文</span>
+                    </button>
+                </div>
+                
+                <div id="transcript-content" class="space-y-8 text-lg leading-relaxed text-slate-700">
+                    <div class="mb-6" id="seg-0">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(3)">
+                                ⏵ 00:03
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-0" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="0" onchange="setTimeByInput(0)" onkeypress="if(event.key==='Enter') setTimeByInput(0)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-0" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="03" onchange="setTimeByInput(0)" onkeypress="if(event.key==='Enter') setTimeByInput(0)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(0)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-0">So for many years I've been doing computer art, geometric art with pen and paper on plotters. I write the code and sometimes I build the machines.</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-0">多年來我一直從事電腦藝術，利用繪圖機在紙上創作幾何藝術。我編寫程式碼，有時甚至自己製造這些機器。</p>
+                    </div>
+                    <div class="mb-6" id="seg-1">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(16)">
+                                ⏵ 00:16
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-1" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="0" onchange="setTimeByInput(1)" onkeypress="if(event.key==='Enter') setTimeByInput(1)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-1" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="16" onchange="setTimeByInput(1)" onkeypress="if(event.key==='Enter') setTimeByInput(1)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(1)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-1">I would upload the stuff to social media, figuring maybe people like the soft noises and the clicks and pops and so on. No one really paid any attention to it. (<span class="vocab-word" data-id="plotter" onmouseenter="showCard(event, 'plotter')" onmouseleave="hideCard()" onclick="toggleCard(event, 'plotter')">Plotter</span> sounds)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-1">我會把作品上傳到社交媒體，想著或許人們會喜歡那些柔和的噪音、喀噠聲和爆裂聲等等。但沒什麼人真正注意到它。（繪圖機運作聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-2">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(32)">
+                                ⏵ 00:32
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-2" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="0" onchange="setTimeByInput(2)" onkeypress="if(event.key==='Enter') setTimeByInput(2)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-2" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="32" onchange="setTimeByInput(2)" onkeypress="if(event.key==='Enter') setTimeByInput(2)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(2)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-2">At some point, someone gave me a chocolate 3D printer <span class="vocab-word" data-id="extruder" onmouseenter="showCard(event, 'extruder')" onmouseleave="hideCard()" onclick="toggleCard(event, 'extruder')">extruder</span>, and I filled it with <span class="vocab-word" data-id="acrylic" onmouseenter="showCard(event, 'acrylic')" onmouseleave="hideCard()" onclick="toggleCard(event, 'acrylic')">acrylic</span> paint, and set it up and made a terrible mess. (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-2">在某個時間點，有人給了我一個巧克力 3D 列印機的擠出機，我把它裝滿壓克力顏料，設置好後弄得一團糟。（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-3">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(48)">
+                                ⏵ 00:48
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-3" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="0" onchange="setTimeByInput(3)" onkeypress="if(event.key==='Enter') setTimeByInput(3)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-3" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="48" onchange="setTimeByInput(3)" onkeypress="if(event.key==='Enter') setTimeByInput(3)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(3)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-3">I wanted to try out making some dots, and I wrote a little program, and the dots weren't in order. (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-3">我想嘗試畫一些點，於是寫了一個小程式，結果那些點完全不按順序排列。（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-4">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(63)">
+                                ⏵ 01:03
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-4" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="1" onchange="setTimeByInput(4)" onkeypress="if(event.key==='Enter') setTimeByInput(4)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-4" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="03" onchange="setTimeByInput(4)" onkeypress="if(event.key==='Enter') setTimeByInput(4)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(4)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-4">These were reactions it got. Some people got angry. Some people sympathized with the robot. (Laughter) Some people danced to it. Mostly angry. (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-4">這就是它得到的回應。有些人很生氣，有些人同情那個機器人。（笑聲）有些人跟著節奏跳舞。但大部分的人都很憤怒。（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-5">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(77)">
+                                ⏵ 01:17
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-5" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="1" onchange="setTimeByInput(5)" onkeypress="if(event.key==='Enter') setTimeByInput(5)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-5" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="17" onchange="setTimeByInput(5)" onkeypress="if(event.key==='Enter') setTimeByInput(5)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(5)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-5">(Video) Narrator: If you go in a line, it’ll be faster. If you go in a line, it'll be -- it'll be quicker if you go in a line. I think -- you're going side to side. You should go in a line and you'll go faster. Just go -- go in a line! (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-5">（影片）旁白：如果你走直線會快一點。如果你走直線，它會——如果你走直線會比較快。我覺得——你在左右亂跳。你應該走直線，這樣會更快。就走——走直線啊！（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-6">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(92)">
+                                ⏵ 01:32
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-6" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="1" onchange="setTimeByInput(6)" onkeypress="if(event.key==='Enter') setTimeByInput(6)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-6" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="32" onchange="setTimeByInput(6)" onkeypress="if(event.key==='Enter') setTimeByInput(6)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(6)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-6">Joshua Schachter: This one is “Bad day at the circle factory.” I realized you could <span class="vocab-word" data-id="manufacture" onmouseenter="showCard(event, 'manufacture')" onmouseleave="hideCard()" onclick="toggleCard(event, 'manufacture')">manufacture</span> emotions of various kinds with just a robot and pen and paper. (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-6">Joshua Schachter：這件作品叫做《圓圈工廠糟糕的一天》。我意識到，只要用一個機器人、一支筆和一張紙，就能製造出各種情緒。（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-7">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(108)">
+                                ⏵ 01:48
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-7" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="1" onchange="setTimeByInput(7)" onkeypress="if(event.key==='Enter') setTimeByInput(7)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-7" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="48" onchange="setTimeByInput(7)" onkeypress="if(event.key==='Enter') setTimeByInput(7)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(7)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-7">So I leaned into it. (Laughter) People got very upset. And I got yelled at a lot. Very gently. A lot about "I hope your pillow is warm." (Applause)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-7">於是我決定往這個方向深挖。（笑聲）人們變得很不爽。我常被罵，但罵得很溫柔。很多人對我說：「希望你的枕頭兩面都是熱的（意指讓你睡不著）。」（掌聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-8">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(140)">
+                                ⏵ 02:20
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-8" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="2" onchange="setTimeByInput(8)" onkeypress="if(event.key==='Enter') setTimeByInput(8)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-8" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="20" onchange="setTimeByInput(8)" onkeypress="if(event.key==='Enter') setTimeByInput(8)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(8)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-8">These started getting millions and millions of views. (Laughter) And a lot of reactions as well.</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-8">這些影片開始獲得數百萬次的觀看。（笑聲）同時也引發了很多迴響。</p>
+                    </div>
+                    <div class="mb-6" id="seg-9">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(154)">
+                                ⏵ 02:34
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-9" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="2" onchange="setTimeByInput(9)" onkeypress="if(event.key==='Enter') setTimeByInput(9)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-9" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="34" onchange="setTimeByInput(9)" onkeypress="if(event.key==='Enter') setTimeByInput(9)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(9)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-9">(Video) Narrator: Circle, circle, circle, I love you. Circle, circle. Did I confess too soon? I confessed too soon! Never mind, never mind! (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-9">（影片）旁白：圓圈、圓圈、圓圈，我愛你。圓圈、圓圈。我是不是太快表白了？我表白得太快了！沒關係，沒關係！（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-10">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(166)">
+                                ⏵ 02:46
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-10" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="2" onchange="setTimeByInput(10)" onkeypress="if(event.key==='Enter') setTimeByInput(10)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-10" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="46" onchange="setTimeByInput(10)" onkeypress="if(event.key==='Enter') setTimeByInput(10)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(10)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-10">JS: People asked me to do mazes. OK. How do you screw up a maze? This is how. It went right past the exit. (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-10">JS：人們要求我畫迷宮。好吧，要怎麼搞砸一個迷宮呢？就像這樣，它直接走過了出口。（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-11">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(180)">
+                                ⏵ 03:00
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-11" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="3" onchange="setTimeByInput(11)" onkeypress="if(event.key==='Enter') setTimeByInput(11)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-11" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="" onchange="setTimeByInput(11)" onkeypress="if(event.key==='Enter') setTimeByInput(11)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(11)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-11">I had to learn the rules of this little medium. It had to be 12, maybe 15 seconds. Go quickly. And I had to try to hide the mistake underneath the <span class="vocab-word" data-id="mechanism" onmouseenter="showCard(event, 'mechanism')" onmouseleave="hideCard()" onclick="toggleCard(event, 'mechanism')">mechanism</span>. (Laughter)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-11">我必須學習這種小眾媒介的規則。影片得控制在 12 到 15 秒之間，節奏要快。而且我必須試著把錯誤隱藏在機械結構下方。（笑聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-12">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(196)">
+                                ⏵ 03:16
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-12" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="3" onchange="setTimeByInput(12)" onkeypress="if(event.key==='Enter') setTimeByInput(12)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-12" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="16" onchange="setTimeByInput(12)" onkeypress="if(event.key==='Enter') setTimeByInput(12)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(12)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-12">And mostly the ending had to be <span class="vocab-word" data-id="traumatic" onmouseenter="showCard(event, 'traumatic')" onmouseleave="hideCard()" onclick="toggleCard(event, 'traumatic')">traumatic</span>. (Laughter) (Audience: Aww.)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-12">最重要的是，結局必須讓人感到崩潰。（笑聲）（觀眾：噢～）</p>
+                    </div>
+                    <div class="mb-6" id="seg-13">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(212)">
+                                ⏵ 03:32
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-13" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="3" onchange="setTimeByInput(13)" onkeypress="if(event.key==='Enter') setTimeByInput(13)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-13" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="32" onchange="setTimeByInput(13)" onkeypress="if(event.key==='Enter') setTimeByInput(13)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(13)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-13">I promised people -- (Laughter) I would promise people <span class="vocab-word" data-id="oddly satisfying" onmouseenter="showCard(event, 'oddly satisfying')" onmouseleave="hideCard()" onclick="toggleCard(event, 'oddly satisfying')">oddly satisfying</span>, and then I would <span class="vocab-word" data-id="betray" onmouseenter="showCard(event, 'betray')" onmouseleave="hideCard()" onclick="toggleCard(event, 'betray')">betray</span> them. (Applause)</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-13">我向人們保證——（笑聲）我會保證讓他們看到「極度療癒」的內容，然後背叛他們。（掌聲）</p>
+                    </div>
+                    <div class="mb-6" id="seg-14">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(228)">
+                                ⏵ 03:48
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-14" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="3" onchange="setTimeByInput(14)" onkeypress="if(event.key==='Enter') setTimeByInput(14)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-14" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="48" onchange="setTimeByInput(14)" onkeypress="if(event.key==='Enter') setTimeByInput(14)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(14)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-14">People thought this was about AI. (Laughter) That one went super viral. People spent 200,000 hours watching my 17 second video.</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-14">人們以為這跟 AI 有關。（笑聲）那支影片徹底瘋傳。人們花了 20 萬個小時觀看我那段僅 17 秒的影片。</p>
+                    </div>
+                    <div class="mb-6" id="seg-15">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(250)">
+                                ⏵ 04:10
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-15" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="4" onchange="setTimeByInput(15)" onkeypress="if(event.key==='Enter') setTimeByInput(15)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-15" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="10" onchange="setTimeByInput(15)" onkeypress="if(event.key==='Enter') setTimeByInput(15)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(15)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-15">I got so many notifications my phone died repeatedly for days. So ultimately, <span class="vocab-word" data-id="constraints" onmouseenter="showCard(event, 'constraints')" onmouseleave="hideCard()" onclick="toggleCard(event, 'constraints')">constraints</span> are great for making art, but you ultimately end up becoming a crappy cover artist of your own work.</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-15">我收到的通知多到手機連續幾天當機。所以最終，限制對於創作藝術很有幫助，但你最終會變成自己作品的蹩腳翻唱歌手。</p>
+                    </div>
+                    <div class="mb-6" id="seg-16">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 bg-green-50 text-green-700 text-xs font-semibold transition-colors" onclick="jumpToTime(268)">
+                                ⏵ 04:28
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-16" min="0" max="999" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="0" value="4" onchange="setTimeByInput(16)" onkeypress="if(event.key==='Enter') setTimeByInput(16)">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-16" min="0" max="59" step="1" class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="00" value="28" onchange="setTimeByInput(16)" onkeypress="if(event.key==='Enter') setTimeByInput(16)">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" onclick="editSegment(16)">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-16">And I didn't really like that, so I took a break. But remember that if you go on the internet and see something that annoys you just a bit ... it might have been me. (Laughter) Thank you.</p>
+                        <p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-16">我不太喜歡那樣，所以我休息了一陣子。但請記住，如果你在上網時看到一些讓你感到有點惱火的東西……那可能就是我做的。（笑聲）謝謝大家。</p>
+                    </div></div>
+            </main>
+
+            <!-- Vocab + Quiz Sidebar -->
+            <aside class="lg:w-1/3">
+                <div class="sticky top-24 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 learning-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="font-bold text-xl flex items-center gap-3 text-slate-900">
+                                <div class="p-2 bg-amber-100 rounded-lg">
+                                    <span class="material-symbols-outlined text-amber-600 text-2xl">verified</span>
+                                </div>
+                                詞彙表
+                                <span class="text-sm bg-slate-200 px-2.5 py-1 rounded-full font-semibold" id="vocab-count">10</span>
+                            </h3>
+                            <button onclick="showAddVocabModal()" class="text-blue-600 hover:bg-blue-50 rounded-full p-2 transition hover:scale-110" title="新增生字">
+                                <span class="material-symbols-outlined text-2xl">add_circle</span>
+                            </button>
+                        </div>
+                        <ul id="vocab-list" class="divide-y max-h-[60vh] overflow-y-auto">
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('acrylic')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">1.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Acrylic</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Acrylic')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/əˈkrɪl.ɪk/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">adjective</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">A type of fast-drying paint made of pigment suspended in acrylic polymer emulsion.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">壓克力 (指壓克力顏料)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('betray')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">2.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Betray</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Betray')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/bɪˈtreɪ/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">verb</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">To fail to keep a promise or be disloyal to someone who trusts you.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">背叛 (在此指違背觀眾對「療癒感」的期待)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('constraints')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">3.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Constraints</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Constraints')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/kənˈstreɪnts/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">noun</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">Limitations or restrictions on what can be done.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">限制 (在藝術創作中指規則或條件的約束)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('extruder')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">4.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Extruder</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Extruder')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/ɪkˈstruː.dɚ/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">noun</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">A tool or machine that pushes material through a shaped opening to create objects.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">擠出機 (如 3D 列印機噴頭，將材料推擠成型)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('lean into')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">5.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Lean into</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Lean into')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/liːn ˈɪn.tuː/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">verb phrase</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">To embrace or pursue something more fully, especially a challenge or a specific direction.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">全力投入 (在此指作者順應並強化這種創作風格)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('manufacture')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">6.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Manufacture</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Manufacture')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/ˌmæn.jəˈfæk.tʃɚ/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">verb</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">To produce something, especially in large amounts using machinery; here used metaphorically to create emotions.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">製造 (此處指刻意產生或製造出某種情感)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('mechanism')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">7.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Mechanism</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Mechanism')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/ˈmek.ə.nɪ.zəm/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">noun</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">A system of parts working together in a machine; a piece of machinery.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">機械裝置 (機器內部運作的結構)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('oddly satisfying')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">8.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Oddly satisfying</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Oddly satisfying')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/ˈɑːd.li ˈsæt.ɪs.faɪ.ɪŋ/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">adjective phrase</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">Describing something that provides a strange or unexpected sense of pleasure or contentment when watched.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">莫名療癒的 (常用於形容令人感到愉悅的重複性短片)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('plotter')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">9.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Plotter</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Plotter')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/ˈplɑː.t̬ɚ/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">noun</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6"></div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">繪圖機 (用於繪製向量圖形的電腦硬體設備)</div>
+                    </li>
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" onclick="scrollToVocab('traumatic')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">10.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">Traumatic</div>
+                                    <button onclick="event.stopPropagation(); speakWord('Traumatic')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-blue-600 font-semibold mt-1">/traʊˈmæt̬.ɪk/</div>
+                                <div class="text-xs text-slate-500 mt-0.5">adjective</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">Causing severe emotional distress or psychological shock.</div>
+                        <div class="text-xs text-blue-700 font-semibold ml-6">創傷性的 (此處幽默地形容讓人感到崩潰或不安的結局)</div>
+                    </li></ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl p-8 shadow-lg text-white learning-card">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="p-2 bg-white/20 rounded-lg">
+                                <span class="material-symbols-outlined text-2xl">quiz</span>
+                            </div>
+                            <h3 class="font-bold text-xl">知識檢測</h3>
+                        </div>
+                        <p class="text-blue-100 text-sm mb-6 leading-relaxed">通過測驗鞏固所學，評估學習進度。</p>
+                        <button onclick="openQuiz()" class="w-full bg-white text-blue-600 py-3 px-4 rounded-xl font-bold shadow-md hover:shadow-lg hover:bg-blue-50 transition transform hover:scale-[1.02] flex justify-center items-center gap-2">
+                            <span class="material-symbols-outlined">play_circle</span>
+                            <span>開始測驗</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Mobile Floating Action Button for Quiz -->
+    <button onclick="openQuiz()" class="lg:hidden fixed bottom-20 right-6 bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 z-50 flex items-center justify-center transition">
+        <span class="material-symbols-outlined text-2xl">quiz</span>
+    </button>
+
+    <!-- Bottom Control Bar (Will be kept in export) -->
+    <div id="bottom-controls" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40 px-3 py-3">
+        <div class="flex flex-nowrap justify-center gap-2">
+            <button id="play-pause-btn" onclick="togglePlayPause()" class="flex items-center gap-1.5 px-4 py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all min-h-[44px]">
+                <span class="material-symbols-outlined text-xl" id="play-icon">play_arrow</span>
+                <span id="play-text" class="hidden sm:inline text-sm">播放</span>
+            </button>
+            
+            <div class="flex items-center rounded-xl border border-slate-300 bg-slate-100 overflow-hidden min-h-[44px]">
+                <button onclick="decreaseFontSize()" class="px-3 py-3 text-sm text-slate-700 hover:bg-slate-200 active:bg-slate-300 transition">
+                    <span class="material-symbols-outlined text-lg">text_decrease</span>
+                </button>
+                <div class="w-px h-8 bg-slate-300"></div>
+                <button onclick="increaseFontSize()" class="px-3 py-3 text-sm text-slate-700 hover:bg-slate-200 active:bg-slate-300 transition">
+                    <span class="material-symbols-outlined text-lg">text_increase</span>
+                </button>
+            </div>
+            
+            <div class="flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden min-h-[44px]">
+                <button onclick="decreasePlaybackSpeed()" class="px-3 py-3 text-sm text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition">
+                    <span class="material-symbols-outlined text-lg">remove</span>
+                </button>
+                <div class="w-px h-8 bg-slate-300"></div>
+                <div class="flex items-center px-3 py-3 text-sm font-bold min-w-[50px] justify-center text-slate-700">
+                    <span id="speed-display">1.0x</span>
+                </div>
+                <div class="w-px h-8 bg-slate-300"></div>
+                <button onclick="increasePlaybackSpeed()" class="px-3 py-3 text-sm text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                </button>
+            </div>
+            
+            <button onclick="toggleTranslations()" class="flex items-center px-4 py-3 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-medium active:bg-blue-100 hover:bg-blue-100 transition min-h-[44px]">
+                <span class="material-symbols-outlined text-lg">translate</span> <span id="cn-toggle-text">中文</span>
+            </button>
+            <button onclick="resetSettings()" class="hidden sm:block px-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-600 text-sm font-medium hover:bg-slate-100 active:bg-slate-200 transition min-h-[44px]">
+                <span class="material-symbols-outlined text-lg">restart_alt</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Card -->
+    <div id="floating-card" class="fixed bg-white rounded-xl shadow-2xl w-80 border z-50 hidden" data-current-id="" style="left: 626.961px; top: 124.047px;">
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-2">
+                        <h3 class="text-xl font-bold flex-1">Oddly satisfying</h3>
+                        <button onclick="event.stopPropagation(); speakWord('Oddly satisfying')" class="ml-2 p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition" title="播放發音">
+                            <span class="material-symbols-outlined text-lg">volume_up</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-500 mb-1">adjective phrase</div>
+                    <div class="text-xs text-blue-600 font-semibold mb-3">/ˈɑːd.li ˈsæt.ɪs.faɪ.ɪŋ/</div>
+                    <p class="text-sm mb-3">Describing something that provides a strange or unexpected sense of pleasure or contentment when watched.</p>
+                    <p class="text-xs text-blue-700 font-bold">莫名療癒的 (常用於形容令人感到愉悅的重複性短片)</p>
+                </div></div>
+
+    <!-- Selection Popup -->
+    <div id="selection-popup" class="fixed bg-purple-600 text-white px-4 py-2 rounded-lg shadow-xl z-50 text-sm font-semibold cursor-pointer hover:bg-purple-700 active:scale-95 transition-all hidden" style="left: -60px; top: -45px;">
+        <span class="material-symbols-outlined text-base" style="vertical-align: middle;">add_circle</span> 加入生字
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-gray-100 bg-gray-50">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">psychology</span>
+                        <h3 class="text-xl font-bold text-slate-800">Knowledge Check</h3>
+                    </div>
+                    <button onclick="closeQuiz()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full p-1 transition"><span class="material-symbols-outlined">close</span></button>
+                </div>
+                <div id="quiz-language-selector" class="hidden flex items-center gap-2 p-3 bg-white border-2 border-slate-200 rounded-lg">
+                    <span class="text-sm font-semibold text-slate-700">Quiz Language:</span>
+                    <button onclick="selectQuizLanguage('english')" class="px-4 py-2 rounded-lg text-sm font-semibold border-2 transition" id="quiz-select-en">
+                        <span class="material-symbols-outlined text-sm align-middle">language</span> English
+                    </button>
+                    <button onclick="selectQuizLanguage('chinese')" class="px-4 py-2 rounded-lg text-sm font-semibold border-2 transition" id="quiz-select-zh">
+                        <span class="material-symbols-outlined text-sm align-middle">translate</span> 中文
+                    </button>
+                </div>
+            </div>
+            <div id="quiz-content" class="p-8 overflow-y-auto space-y-8 bg-white"></div>
+            <div id="quiz-footer" class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end"></div>
+        </div>
+    </div>
+
+    <!-- Add Vocab Modal -->
+    <div id="add-vocab-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-3xl flex flex-col h-[80vh]">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">新增生字</h3>
+                <button onclick="closeAddVocabModal()" class="text-gray-400 hover:text-gray-700 rounded p-1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="p-4 flex-1 flex flex-col gap-3">
+                <div id="add-vocab-hint" class="bg-blue-50 text-blue-800 p-3 rounded text-xs">
+                    格式：[{ "word": "...", "def": "...", "pos": "n." }, ...]
+                </div>
+                <textarea id="add-vocab-input" class="flex-1 border rounded p-4 font-mono text-xs resize-none" placeholder="[{&quot;word&quot;:&quot;Example&quot;,&quot;def&quot;:&quot;範例&quot;,&quot;pos&quot;:&quot;n.&quot;}]"></textarea>
+            </div>
+            
+            <div class="p-4 border-t flex justify-between gap-3">
+                <div></div>
+                <div class="flex gap-3">
+                    <button onclick="closeAddVocabModal()" class="px-4 py-2 rounded border border-slate-300 hover:bg-slate-50 font-medium">Cancel</button>
+                    <button onclick="addNewVocabFromJSON()" class="bg-indigo-600 text-white px-6 py-2 rounded font-bold hover:bg-indigo-700">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+
+    <div id="edit-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-4xl flex flex-col h-[85vh]">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">編輯逐字稿段落</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-700 rounded p-1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="p-6 flex-1 flex flex-col gap-4 overflow-y-auto">
+                <div class="flex-1 flex flex-col">
+                    <label class="font-semibold mb-2 text-sm text-slate-700">英文內容</label>
+                    <textarea id="edit-en-input" class="flex-1 border-2 border-slate-300 rounded-lg p-4 font-sans text-base resize-none focus:border-blue-500 focus:outline-none min-h-[200px]" placeholder="輸入英文內容..."></textarea>
+                </div>
+                
+                <div class="flex-1 flex flex-col">
+                    <label class="font-semibold mb-2 text-sm text-slate-700">中文翻譯</label>
+                    <textarea id="edit-cn-input" class="flex-1 border-2 border-slate-300 rounded-lg p-4 font-sans text-base resize-none focus:border-blue-500 focus:outline-none min-h-[200px]" placeholder="輸入中文翻譯（可選）..."></textarea>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t flex justify-end gap-3">
+                <button onclick="closeEditModal()" class="px-6 py-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 font-medium">取消</button>
+                <button onclick="saveEdit()" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-blue-700">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insert Transcript Modal -->
+    <div id="insert-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-3xl flex flex-col h-[80vh]">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">從段落 <span id="insert-segment-index"></span> 插入逐字稿</h3>
+                <div class="flex items-center gap-2">
+                    <button id="copy-insert-prompt-btn" onclick="copyInsertPrompt()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 text-xs font-semibold transition" title="複製 AI Prompt">
+                        <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        AI Prompt
+                    </button>
+                    <button onclick="closeInsertModal()" class="text-gray-400 hover:text-gray-700 rounded p-1">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 flex-1 flex flex-col gap-3">
+                <div class="bg-purple-50 text-purple-800 p-3 rounded text-xs">
+                    格式：[{ "en": "...", "cn": "...", "t": 0 }, ...]<br>
+                    <strong>注意：</strong>此功能會從選定的段落開始，用新資料<strong>取代</strong>之後所有段落，但保留之前的段落。
+                </div>
+                <textarea id="insert-input" class="flex-1 border rounded p-4 font-mono text-xs resize-none" placeholder="[{&quot;en&quot;:&quot;Hello&quot;,&quot;cn&quot;:&quot;你好&quot;,&quot;t&quot;:0}]"></textarea>
+            </div>
+            
+            <div class="p-4 border-t flex justify-end gap-3">
+                <button onclick="closeInsertModal()" class="px-4 py-2 rounded hover:bg-gray-100">Cancel</button>
+                <button onclick="insertTranscriptFromIndex()" class="bg-purple-600 text-white px-6 py-2 rounded font-bold hover:bg-purple-700">插入逐字稿</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="import-modal" class="modal hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-3xl flex flex-col h-[80vh]">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg" id="modal-title">Import</h3>
+                <div class="flex items-center gap-2">
+                    <button id="copy-cefr-prompt-btn" onclick="openCEFRLevelSelector()" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 text-xs font-semibold transition" title="複製 CEFR 難度調整 Prompt">
+                        <span class="material-symbols-outlined text-sm">tune</span>
+                        難度調整
+                    </button>
+                    <button id="copy-transcript-prompt-btn" onclick="copyTranscriptPromptFromClipboard()" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 text-xs font-semibold transition" title="複製剪貼簿 Prompt">
+                        <span class="material-symbols-outlined text-sm">content_paste</span>
+                        剪貼簿 Prompt
+                    </button>
+                    <button id="copy-prompt-btn" onclick="copyPrompt()" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 text-xs font-semibold transition" title="複製 AI Prompt">
+                        <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        AI Prompt
+                    </button>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 rounded p-1">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 flex-1 flex flex-col gap-3">
+                <div id="modal-hint" class="bg-blue-50 text-blue-800 p-3 rounded text-xs"></div>
+                <textarea id="import-input" class="flex-1 border rounded p-4 font-mono text-xs resize-none"></textarea>
+            </div>
+            
+            <div class="p-4 border-t flex justify-between gap-3">
+                <div class="flex gap-2">
+                    <button id="clear-data-btn" class="px-4 py-2 rounded border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 font-medium text-sm hidden">
+                        <span class="material-symbols-outlined text-base align-middle">delete_outline</span> 清除所有紀錄
+                    </button>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded hover:bg-gray-100">Cancel</button>
+                    <button id="import-action-btn" class="bg-blue-600 text-white px-6 py-2 rounded font-bold">Load</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State - Load from localStorage
+        let transcriptData = [{"en":"So for many years I've been doing computer art, geometric art with pen and paper on plotters. I write the code and sometimes I build the machines.","cn":"多年來我一直從事電腦藝術，利用繪圖機在紙上創作幾何藝術。我編寫程式碼，有時甚至自己製造這些機器。","t":3},{"en":"I would upload the stuff to social media, figuring maybe people like the soft noises and the clicks and pops and so on. No one really paid any attention to it. (Plotter sounds)","cn":"我會把作品上傳到社交媒體，想著或許人們會喜歡那些柔和的噪音、喀噠聲和爆裂聲等等。但沒什麼人真正注意到它。（繪圖機運作聲）","t":16},{"en":"At some point, someone gave me a chocolate 3D printer extruder, and I filled it with acrylic paint, and set it up and made a terrible mess. (Laughter)","cn":"在某個時間點，有人給了我一個巧克力 3D 列印機的擠出機，我把它裝滿壓克力顏料，設置好後弄得一團糟。（笑聲）","t":32},{"en":"I wanted to try out making some dots, and I wrote a little program, and the dots weren't in order. (Laughter)","cn":"我想嘗試畫一些點，於是寫了一個小程式，結果那些點完全不按順序排列。（笑聲）","t":48},{"en":"These were reactions it got. Some people got angry. Some people sympathized with the robot. (Laughter) Some people danced to it. Mostly angry. (Laughter)","cn":"這就是它得到的回應。有些人很生氣，有些人同情那個機器人。（笑聲）有些人跟著節奏跳舞。但大部分的人都很憤怒。（笑聲）","t":63},{"en":"(Video) Narrator: If you go in a line, it’ll be faster. If you go in a line, it'll be -- it'll be quicker if you go in a line. I think -- you're going side to side. You should go in a line and you'll go faster. Just go -- go in a line! (Laughter)","cn":"（影片）旁白：如果你走直線會快一點。如果你走直線，它會——如果你走直線會比較快。我覺得——你在左右亂跳。你應該走直線，這樣會更快。就走——走直線啊！（笑聲）","t":77},{"en":"Joshua Schachter: This one is “Bad day at the circle factory.” I realized you could manufacture emotions of various kinds with just a robot and pen and paper. (Laughter)","cn":"Joshua Schachter：這件作品叫做《圓圈工廠糟糕的一天》。我意識到，只要用一個機器人、一支筆和一張紙，就能製造出各種情緒。（笑聲）","t":92},{"en":"So I leaned into it. (Laughter) People got very upset. And I got yelled at a lot. Very gently. A lot about \"I hope your pillow is warm.\" (Applause)","cn":"於是我決定往這個方向深挖。（笑聲）人們變得很不爽。我常被罵，但罵得很溫柔。很多人對我說：「希望你的枕頭兩面都是熱的（意指讓你睡不著）。」（掌聲）","t":108},{"en":"These started getting millions and millions of views. (Laughter) And a lot of reactions as well.","cn":"這些影片開始獲得數百萬次的觀看。（笑聲）同時也引發了很多迴響。","t":140},{"en":"(Video) Narrator: Circle, circle, circle, I love you. Circle, circle. Did I confess too soon? I confessed too soon! Never mind, never mind! (Laughter)","cn":"（影片）旁白：圓圈、圓圈、圓圈，我愛你。圓圈、圓圈。我是不是太快表白了？我表白得太快了！沒關係，沒關係！（笑聲）","t":154},{"en":"JS: People asked me to do mazes. OK. How do you screw up a maze? This is how. It went right past the exit. (Laughter)","cn":"JS：人們要求我畫迷宮。好吧，要怎麼搞砸一個迷宮呢？就像這樣，它直接走過了出口。（笑聲）","t":166},{"en":"I had to learn the rules of this little medium. It had to be 12, maybe 15 seconds. Go quickly. And I had to try to hide the mistake underneath the mechanism. (Laughter)","cn":"我必須學習這種小眾媒介的規則。影片得控制在 12 到 15 秒之間，節奏要快。而且我必須試著把錯誤隱藏在機械結構下方。（笑聲）","t":180},{"en":"And mostly the ending had to be traumatic. (Laughter) (Audience: Aww.)","cn":"最重要的是，結局必須讓人感到崩潰。（笑聲）（觀眾：噢～）","t":196},{"en":"I promised people -- (Laughter) I would promise people oddly satisfying, and then I would betray them. (Applause)","cn":"我向人們保證——（笑聲）我會保證讓他們看到「極度療癒」的內容，然後背叛他們。（掌聲）","t":212},{"en":"People thought this was about AI. (Laughter) That one went super viral. People spent 200,000 hours watching my 17 second video.","cn":"人們以為這跟 AI 有關。（笑聲）那支影片徹底瘋傳。人們花了 20 萬個小時觀看我那段僅 17 秒的影片。","t":228},{"en":"I got so many notifications my phone died repeatedly for days. So ultimately, constraints are great for making art, but you ultimately end up becoming a crappy cover artist of your own work.","cn":"我收到的通知多到手機連續幾天當機。所以最終，限制對於創作藝術很有幫助，但你最終會變成自己作品的蹩腳翻唱歌手。","t":250},{"en":"And I didn't really like that, so I took a break. But remember that if you go on the internet and see something that annoys you just a bit ... it might have been me. (Laughter) Thank you.","cn":"我不太喜歡那樣，所以我休息了一陣子。但請記住，如果你在上網時看到一些讓你感到有點惱火的東西……那可能就是我做的。（笑聲）謝謝大家。","t":268}];
+        let vocabData = [{"id":"plotter","word":"Plotter","ipa":"/ˈplɑː.t̬ɚ/","pos":"noun","par":"A computer hardware device used for printing vector graphics by moving a pen across the surface of paper.","cn":"繪圖機 (用於繪製向量圖形的電腦硬體設備)"},{"id":"extruder","word":"Extruder","ipa":"/ɪkˈstruː.dɚ/","pos":"noun","def":"A tool or machine that pushes material through a shaped opening to create objects.","cn":"擠出機 (如 3D 列印機噴頭，將材料推擠成型)"},{"id":"acrylic","word":"Acrylic","ipa":"/əˈkrɪl.ɪk/","pos":"adjective","def":"A type of fast-drying paint made of pigment suspended in acrylic polymer emulsion.","cn":"壓克力 (指壓克力顏料)"},{"id":"manufacture","word":"Manufacture","ipa":"/ˌmæn.jəˈfæk.tʃɚ/","pos":"verb","def":"To produce something, especially in large amounts using machinery; here used metaphorically to create emotions.","cn":"製造 (此處指刻意產生或製造出某種情感)"},{"id":"lean into","word":"Lean into","ipa":"/liːn ˈɪn.tuː/","pos":"verb phrase","def":"To embrace or pursue something more fully, especially a challenge or a specific direction.","cn":"全力投入 (在此指作者順應並強化這種創作風格)"},{"id":"mechanism","word":"Mechanism","ipa":"/ˈmek.ə.nɪ.zəm/","pos":"noun","def":"A system of parts working together in a machine; a piece of machinery.","cn":"機械裝置 (機器內部運作的結構)"},{"id":"traumatic","word":"Traumatic","ipa":"/traʊˈmæt̬.ɪk/","pos":"adjective","def":"Causing severe emotional distress or psychological shock.","cn":"創傷性的 (此處幽默地形容讓人感到崩潰或不安的結局)"},{"id":"oddly satisfying","word":"Oddly satisfying","ipa":"/ˈɑːd.li ˈsæt.ɪs.faɪ.ɪŋ/","pos":"adjective phrase","def":"Describing something that provides a strange or unexpected sense of pleasure or contentment when watched.","cn":"莫名療癒的 (常用於形容令人感到愉悅的重複性短片)"},{"id":"betray","word":"Betray","ipa":"/bɪˈtreɪ/","pos":"verb","def":"To fail to keep a promise or be disloyal to someone who trusts you.","cn":"背叛 (在此指違背觀眾對「療癒感」的期待)"},{"id":"constraints","word":"Constraints","ipa":"/kənˈstreɪnts/","pos":"noun","def":"Limitations or restrictions on what can be done.","cn":"限制 (在藝術創作中指規則或條件的約束)"}];
+        let quizData = {"english":[{"q":"What tool did the author use to create his original computer art before using the chocolate 3D printer extruder?","options":["Digital tablets","Pen and paper on plotters","Hand-painted acrylics","AI image generators"],"correct":1},{"q":"According to the text, what was one of the 'rules' the author learned for his viral videos?","options":["The videos should be at least one minute long","The mistakes must be shown clearly at the start","The video length should be around 12 to 15 seconds","The robot must move as slowly as possible"],"correct":2},{"q":"What changed when the author shifted from geometric art to 'making a mess' with the extruder?","options":["People started paying much more attention and reacting emotionally","The machines became much more expensive to build","He stopped using code to control the robots","He began selling the art for a high price"],"correct":0},{"q":"What is the tone of the comment 'I hope your pillow is warm' in the context of the story?","options":["A sincere wish for the author's comfort","A technical suggestion for machine maintenance","A playful or 'gentle' way of expressing frustration","An angry threat regarding the author's safety"],"correct":2},{"q":"Why did the author eventually decide to take a break from this style of art?","options":["He ran out of acrylic paint and materials","He felt he was becoming a poor 'cover artist' of his own work due to constraints","The social media platforms banned his 'annoying' content","His phone was permanently broken from too many notifications"],"correct":1},{"q":"What is the main message the author conveys about creativity and the internet?","options":["Geometric art is the only way to achieve viral success","AI will eventually replace the need for human-built plotters","Artistic constraints are useless and should always be avoided","One can manufacture strong human emotions by subverting expectations of 'perfection'"],"correct":3}],"chinese":[{"q":"在使用巧克力 3D 列印機擠出機之前，作者使用什麼工具創作他最初的電腦藝術？","options":["數位繪圖板","繪圖機上的筆與紙","手繪壓克力顏料","AI 圖像生成器"],"correct":1},{"q":"根據文本，作者為他的瘋傳影片學到了哪一項「規則」？","options":["影片長度至少要一分鐘","錯誤必須在影片開始時清楚呈現","影片長度應在 12 到 15 秒左右","機器人必須移動得越慢越好"],"correct":2},{"q":"當作者從幾何藝術轉向使用擠出機「弄得一團糟」時，發生了什麼變化？","options":["人們開始投入更多關注並產生情緒反應","機器的製造成本變得昂貴許多","他停止使用程式碼來控制機器人","他開始以高價出售這些藝術品"],"correct":0},{"q":"在故事背景下，「我希望你的枕頭是溫熱的」這句話語氣為何？","options":["對作者舒適度的真誠祝福","關於機器維護的技術性建議","一種頑皮或「溫柔」的挫折表達方式","針對作者安全的憤怒威脅"],"correct":2},{"q":"為什麼作者最終決定暫停這種風格的藝術創作？","options":["他的壓克力顏料和材料用完了","他覺得因為限制，自己成了自己作品的蹩腳「翻唱歌手」","社群媒體平台禁用了他那些「惱人」的內容","他的手機因為太多通知而永久損壞了"],"correct":1},{"q":"關於創意與網路，作者傳達的主要訊息是什麼？","options":["幾何藝術是獲得病毒式成功的唯一途徑","AI 最終將取代對人類製造繪圖機的需求","藝術限制是徒勞的，應該始終避免","透過顛覆對「完美」的期待，可以製造出強烈的人類情感"],"correct":3}]};
+        let quizLanguage = 'english'; // 'english' or 'chinese'
+        let videoId = localStorage.getItem('videoId') || '';
+        let selectedWords = [];
+        let cefrLevel = localStorage.getItem('cefrLevel') || ''; // Store selected CEFR level
+        let translationsVisible = false;
+        let player;
+        let playerReady = false;
+
+        // Sticky video functionality
+        const videoContainer = document.getElementById('video-container');
+        const videoSection = document.getElementById('video-section');
+        const videoPlaceholder = document.getElementById('video-placeholder');
+        const closeBtn = document.getElementById('close-sticky-video');
+        const floatingCloseBtn = document.getElementById('floating-close-btn');
+        let isSticky = false;
+        let manuallyHidden = false;
+        let initialTop = 0;
+
+        // Calculate initial position once
+        if (videoSection) {
+            setTimeout(() => {
+                initialTop = videoSection.getBoundingClientRect().top + window.scrollY;
+            }, 100);
+        }
+
+        function updateStickyVideo() {
+            if (!videoSection || manuallyHidden) return;
+            
+            const shouldBeSticky = window.scrollY > initialTop + 100;
+            
+            if (shouldBeSticky && !isSticky) {
+                videoContainer.classList.add('sticky-video');
+                videoPlaceholder.classList.remove('hidden');
+                closeBtn.classList.remove('hidden');
+                floatingCloseBtn.classList.remove('hidden');
+                isSticky = true;
+            } else if (!shouldBeSticky && isSticky) {
+                videoContainer.classList.remove('sticky-video');
+                videoPlaceholder.classList.add('hidden');
+                closeBtn.classList.add('hidden');
+                floatingCloseBtn.classList.add('hidden');
+                isSticky = false;
+            }
+        }
+
+        function closeStickyVideo() {
+            videoContainer.classList.remove('sticky-video');
+            videoPlaceholder.classList.add('hidden');
+            closeBtn.classList.add('hidden');
+            floatingCloseBtn.classList.add('hidden');
+            isSticky = false;
+            manuallyHidden = true;
+        }
+
+        function manualToggleSticky() {
+            if (isSticky) {
+                // 如果已經是浮動狀態，關閉它
+                closeStickyVideo();
+            } else {
+                // 開啟浮動模式
+                videoContainer.classList.add('sticky-video');
+                videoPlaceholder.classList.remove('hidden');
+                closeBtn.classList.remove('hidden');
+                floatingCloseBtn.classList.remove('hidden');
+                isSticky = true;
+                manuallyHidden = false;
+            }
+        }
+
+        closeBtn.addEventListener('click', closeStickyVideo);
+        floatingCloseBtn.addEventListener('click', closeStickyVideo);
+
+        window.addEventListener('scroll', updateStickyVideo);
+        window.addEventListener('resize', () => {
+            if (videoSection && !manuallyHidden) {
+                initialTop = videoSection.getBoundingClientRect().top + window.scrollY;
+                updateStickyVideo();
+            }
+        });
+
+        let youtubeAPIReady = false;
+        let currentFontSize = 18; // base font size in px
+        let currentPlaybackSpeed = 1.0;
+
+        const modal = document.getElementById('import-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalHint = document.getElementById('modal-hint');
+        const inputArea = document.getElementById('import-input');
+        const actionBtn = document.getElementById('import-action-btn');
+        const floatingCard = document.getElementById('floating-card');
+        const transcriptPromptBtn = document.getElementById('copy-transcript-prompt-btn');
+
+        // Modal Functions
+        function openModal(mode) {
+            modal.classList.remove('hidden');
+            inputArea.value = '';
+            inputArea.focus();
+            const clearBtn = document.getElementById('clear-data-btn');
+            const copyBtn = document.getElementById('copy-prompt-btn');
+            const cefrBtn = document.getElementById('copy-cefr-prompt-btn');
+            window.currentModalMode = mode;
+            
+            if (mode === 'video') {
+                modalTitle.innerText = "設定 YouTube 影片";
+                modalHint.innerText = '貼上 YouTube 網址或影片 ID';
+                inputArea.placeholder = 'https://www.youtube.com/watch?v=...';
+                actionBtn.onclick = parseVideoUrl;
+                clearBtn.classList.add('hidden');
+                copyBtn.classList.add('hidden');
+                transcriptPromptBtn.classList.add('hidden');
+                cefrBtn.classList.add('hidden');
+            } else if (mode === 'transcript') {
+                modalTitle.innerText = "匯入逐字稿";
+                modalHint.innerText = '格式：[{ "en": "...", "cn": "...", "t": 0 }, ...]';
+                inputArea.placeholder = '[{"en":"Hello","cn":"你好","t":0}]';
+                actionBtn.onclick = parseTranscript;
+                clearBtn.classList.remove('hidden');
+                copyBtn.classList.remove('hidden');
+                transcriptPromptBtn.classList.remove('hidden');
+                cefrBtn.classList.remove('hidden');
+                clearBtn.onclick = () => {
+                    if (confirm('確定要清除所有逐字稿紀錄嗎？')) {
+                        clearTranscriptData();
+                    }
+                };
+            } else if (mode === 'vocab') {
+                modalTitle.innerText = "匯入單字";
+                modalHint.innerText = '格式：[{ "word": "...", "def": "...", "pos": "n." }, ...]';
+                inputArea.placeholder = '[{"word":"Example","def":"範例"}]';
+                actionBtn.onclick = parseVocab;
+                clearBtn.classList.remove('hidden');
+                copyBtn.classList.remove('hidden');
+                transcriptPromptBtn.classList.add('hidden');
+                cefrBtn.classList.add('hidden');
+                clearBtn.onclick = () => {
+                    if (confirm('確定要清除所有單字紀錄嗎？')) {
+                        clearVocabData();
+                    }
+                };
+            } else {
+                modalTitle.innerText = "匯入 Quiz（雙語格式）";
+                modalHint.innerText = '格式：{ "english": [{"q":"...", "options":[...], "correct":0}], "chinese": [{"q":"...", "options":[...], "correct":0}] }';
+                inputArea.placeholder = '{"english":[{"q":"Question?","options":["A","B","C","D"],"correct":0}],"chinese":[{"q":"題目?","options":["A","B","C","D"],"correct":0}]}';
+                actionBtn.onclick = parseQuiz;
+                clearBtn.classList.remove('hidden');
+                copyBtn.classList.remove('hidden');
+                transcriptPromptBtn.classList.add('hidden');
+                cefrBtn.classList.add('hidden');
+                clearBtn.onclick = () => {
+                    if (confirm('確定要清除所有 Quiz 題庫嗎？')) {
+                        clearQuizData();
+                    }
+                };
+            }
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        function selectQuizLanguage(lang) {
+            quizLanguage = lang;
+            updateQuizLanguageSelector();
+            renderQuizContent(); // 重新渲染題目
+        }
+
+        function updateQuizLanguageSelector() {
+            const btnEn = document.getElementById('quiz-select-en');
+            const btnZh = document.getElementById('quiz-select-zh');
+            
+            if (!btnEn || !btnZh) return;
+            
+            if (quizLanguage === 'english') {
+                btnEn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                btnEn.classList.remove('bg-white', 'text-slate-700', 'border-slate-300');
+                btnZh.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btnZh.classList.add('bg-white', 'text-slate-700', 'border-slate-300');
+            } else {
+                btnZh.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                btnZh.classList.remove('bg-white', 'text-slate-700', 'border-slate-300');
+                btnEn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btnEn.classList.add('bg-white', 'text-slate-700', 'border-slate-300');
+            }
+        }
+
+
+        function generateTranscriptPrompt() {
+            let prompt = '';
+            
+            // Add video URL if available
+            if (videoId && videoId.length === 11) {
+                prompt += `https://www.youtube.com/watch?v=${videoId}\n\n`;
+            } else {
+                prompt += '🔻\n\n';
+            }
+            
+            prompt += `將以上影片的演講內容，整理成英文和中文隨段落對照的逐字稿，並以以下格式嚴格依照 JSON Array 格式輸出結果：：
+{
+    en: "When I found out my grandmother, my last living grandparent, was dying, my first thought was, \"I need to draw her hands.\" I'm a visual artist, a cartoonist for The New Yorker, and comics writer, so drawing is how I understand much of the world.",
+    cn: "當我得知我的祖母——我最後一位在世的祖父母——即將離世時，我的第一個念頭是：「我需要畫下她的手。」我是一位視覺藝術家，也是《紐約客》的漫畫家和漫畫作者，所以繪畫是我理解這個世界的主要方式。"
+},
+{
+    en: "For a long time, my cartoons had been impersonal. Commentary on the world around me, sure, but not really about me. The closest my personal life got to influencing my cartoons were cartoons I lifted from things my friends and family had said around me. It was only after my daughter Ellika was born that my personal life began to creep into my cartoons more.",
+    cn: "很長一段時間以來，我的漫畫都是非個人化的。它們是對周遭世界的評論，沒錯，但並不真正關於我自己。我的個人生活對漫畫最接近的影響，頂多就是從朋友和家人的談話中取材。直到我女兒埃莉卡 (Ellika) 出生後，我的個人生活才開始更多地滲透進我的漫畫中。"
+}`;
+            
+            return prompt;
+        }
+
+        function generateQuizPrompt() {
+            let prompt = '# Role: 你是一位資深的英語教學評量專家，專精於 CEFR 等級分析與閱讀理解診斷。\n\n';
+            prompt += '# Task: 請針對我提供的英文文章，設計一份用於「評估學生閱讀程度」的題組。\n\n';
+            prompt += '# Requirements:\n\n';
+            prompt += '1. **文章程度診斷**：先簡述這篇文章在 CEFR 標準下屬於哪個等級，並列出 5-10 個影響難度的關鍵詞彙。\n\n';
+            prompt += '2. **題組設計**：請根據「閱讀理解三層次」設計 6 道選擇題：\n';
+            prompt += '   - Level 1: 字面理解題 (Literal) x 2 (答案直接在文中)\n';
+            prompt += '   - Level 2: 推論理解題 (Inferential) x 2 (需要整合上下文或猜測語氣)\n';
+            prompt += '   - Level 3: 批判/整合題 (Evaluative) x 2 (需要理解作者核心意圖或延伸思考)\n\n';
+            prompt += '3. **讀者程度診斷指南**：這部分最重要。請提供一個對照表，說明學生答對題數所代表的 CEFR 閱讀能力落點，以及後續的學習建議。\n\n';
+            prompt += '# Output Format:\n\n';
+            prompt += '---\n\n';
+            prompt += '## 一、 文章難度分析 (CEFR Level)\n\n';
+            prompt += '## 二、 閱讀評估題組 (附選項與正確答案)\n\n';
+            prompt += '## 三、 學生程度診斷指南 (Diagnostic Guide)\n\n';
+            prompt += '- 答對 0-2 題：程度落點與建議\n';
+            prompt += '- 答對 3-4 題：程度落點與建議\n';
+            prompt += '- 答對 5-6 題：程度落點與建議\n\n';
+            prompt += '---\n\n';
+            prompt += 'Please output a JSON object with TWO keys: "english" and "chinese", each containing a JSON Array of questions.\n';
+            prompt += 'Format specifications:\n\n';
+            prompt += '{\n';
+            prompt += '  "english": [\n';
+            prompt += '    { "q": "Question in English", "options": ["Option A", "Option B", "Option C", "Option D"], "correct": 0 },\n';
+            prompt += '    ...\n';
+            prompt += '  ],\n';
+            prompt += '  "chinese": [\n';
+            prompt += '    { "q": "題目中文翻譯", "options": ["選項A", "選項B", "選項C", "選項D"], "correct": 0 },\n';
+            prompt += '    ...\n';
+            prompt += '  ]\n';
+            prompt += '}\n\n';
+            prompt += 'Requirements:\n';
+            prompt += '- Both English and Chinese versions must have the SAME questions with the SAME correct answers (index).\n';
+            prompt += '- English: questions and options in English\n';
+            prompt += '- Chinese: complete translation of questions and options to Traditional Chinese\n';
+            prompt += '- Output ONLY the JSON object, no explanations or extra text.\n';
+            prompt += '- Questions should cover content comprehension, key details, main idea, and inference.\n';
+            prompt += '- Avoid duplicate questions or overly similar options.\n';
+            prompt += '- Content must be faithful to the transcript; do not add information not present in it.\n\n';
+            prompt += 'English transcript:';
+            
+            if (transcriptData.length > 0) {
+                const englishText = transcriptData.map(seg => seg.en).join(' ');
+                prompt += englishText;
+            } else {
+                prompt += '🔻';
+            }
+            
+            return prompt;
+        }
+
+        function generateVocabPrompt() {
+            let prompt = '你是一位專業的英語教學專家與程式開發輔助者。請分析我提供的文章，並從中挑選出對讀者可能較難、冷僻或具備學習價值的生字（建議難度 B2-C2 或特定領域術語）。\n\n';
+            prompt += '請嚴格依照以下 JSON Array 格式輸出結果：\n\n';
+            prompt += '1.  **id**: 單字的全小寫形式。\n';
+            prompt += '2.  **word**: 單字的首字母大寫。\n';
+            prompt += '3.  **ipa**: 該單字的 IPA 音標。\n';
+            prompt += '4.  **pos**: 詞性 (如 noun, verb, adjective)。\n';
+            prompt += '5.  **def**: 簡潔的英文定義。\n';
+            prompt += '6.  **cn**: 繁體中文解釋 (若有特定語境請一併標註)。\n';
+            prompt += '範例格式：\n';
+            prompt += '[\n    {\n        "id": "pareidolia",\n        "word": "Pareidolia",\n        "ipa": "/ˌpær.ɪˈdoʊ.li.ə/",\n        "pos": "noun",\n        "def": "The psychological phenomenon of seeing recognizable shapes, especially faces, in random or vague stimuli.",\n        "cn": "幻想性錯覺 (尤指將模糊圖像看作人臉)",\n     }\n]\n\n';
+            prompt += '文章內容如下：\n';
+            
+            // Add English transcript if available
+            if (transcriptData.length > 0) {
+                const englishText = transcriptData.map(seg => seg.en).join(' ');
+                prompt += englishText + '\n\n';
+            } else {
+                prompt += '🔻\n\n';
+            }
+            
+            return prompt;
+        }
+
+        function generateCEFRAdaptationPrompt(targetLevel, options = {}) {
+            let prompt = '# Role: 你是一位資深的英語教材編寫專家，擅長根據 CEFR 標準調整文本難度。\n\n';
+            prompt += '# Task: 請將我提供的原始逐字稿，改寫為符合 [' + targetLevel + '] 程度的英文文章。\n\n';
+            prompt += '# Requirements by CEFR Level:\n';
+            prompt += '- 若目標為 **A2/B1**：使用常用單字（核心 2000-3000 字），句子結構以單句為主，避免複雜的子句。\n';
+            prompt += '- 若目標為 **B2**：可以使用較具體的描述性動詞，允許出現複合句，但應保持邏輯結構清晰。\n';
+            prompt += '- 若目標為 **C1**：保持原始文章的精確性與修飾語，強化學術或文學性的轉折詞。\n\n';
+            prompt += '# Guidelines:\n';
+            prompt += '1. **結構優化**：將原本雜亂的口語逐字稿整理成邏輯通順的段落。\n';
+            prompt += '2. **語氣保留**：保留原作者的核心觀點、故事與情感色彩，不要刪除重要的例子。\n';
+            prompt += '3. **詞彙調整**：[針對目標程度，替換掉過於艱澀或過於簡單的詞彙]。\n';
+            
+            // Add optional guidelines
+            if (options.keepNarrative) {
+                prompt += '4. **保持敘事結構**：請保持敘事結構，僅簡化單字與文法。\n';
+            }
+            if (options.keepCulturalRef) {
+                prompt += '5. **保留文化典故**：請保留文章中的文化典故，但請用簡單的英文句子補充解釋該典故的意思。\n';
+            }
+            
+            prompt += '6. **輸出格式**：\n';
+            prompt += '   - 標題：[為改寫後的文章起一個標題]\n';
+            prompt += '   - 本文：[改寫後的文章內容]\n';
+            prompt += '   - 關鍵單字表：[列出 5 個符合該程度、且對理解本文至關重要的單字與中解]\n\n';
+            prompt += '# Target Level: ' + targetLevel + '\n\n';
+            prompt += '# Original Transcript (原始逐字稿):\n';
+            
+            if (transcriptData.length > 0) {
+                const englishText = transcriptData.map(seg => seg.en).join(' ');
+                prompt += englishText;
+            } else {
+                prompt += '🔻';
+            }
+            
+            return prompt;
+        }
+
+        async function openCEFRLevelSelector() {
+            // Create a modal for selecting CEFR level with checkboxes
+            const levelHTML = `
+                <div id="cefr-level-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                    <div style="background: white; border-radius: 16px; padding: 32px; text-align: left; box-shadow: 0 20px 25px rgba(0,0,0,0.15); max-width: 450px;">
+                        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 24px; color: #1f2937; text-align: center;">選擇目標難度等級</h3>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                            <button onclick="copyCEFRPrompt('A2')" style="padding: 12px 24px; border: 2px solid #60a5fa; background: #dbeafe; color: #2563eb; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                                A2 (Elementary)
+                            </button>
+                            <button onclick="copyCEFRPrompt('B1')" style="padding: 12px 24px; border: 2px solid #60a5fa; background: #dbeafe; color: #2563eb; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                                B1 (Intermediate)
+                            </button>
+                            <button onclick="copyCEFRPrompt('B2')" style="padding: 12px 24px; border: 2px solid #60a5fa; background: #dbeafe; color: #2563eb; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                                B2 (Upper-Intermediate)
+                            </button>
+                            <button onclick="copyCEFRPrompt('C1')" style="padding: 12px 24px; border: 2px solid #60a5fa; background: #dbeafe; color: #2563eb; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                                C1 (Advanced)
+                            </button>
+                        </div>
+                        
+                        <div style="border-top: 2px solid #e5e7eb; padding-top: 24px; margin-bottom: 24px;">
+                            <p style="font-size: 14px; font-weight: bold; color: #4b5563; margin-bottom: 12px;">額外選項 (可複選)：</p>
+                            <label style="display: flex; align-items: center; margin-bottom: 12px; cursor: pointer;">
+                                <input type="checkbox" id="cefr-narrative-checkbox" style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                                <span style="color: #374151; font-size: 14px;">保持敘事結構</span>
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="cefr-cultural-checkbox" style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                                <span style="color: #374151; font-size: 14px;">保留文化典故</span>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="closeCEFRModal()" style="flex: 1; padding: 12px 24px; border: 2px solid #d1d5db; background: #f3f4f6; color: #6b7280; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', levelHTML);
+        }
+
+        function closeCEFRModal() {
+            const modal = document.getElementById('cefr-level-modal');
+            if (modal) modal.remove();
+        }
+
+        async function copyCEFRPrompt(level) {
+            // Get checkbox states before closing modal
+            const narrativeCheckbox = document.getElementById('cefr-narrative-checkbox');
+            const culturalCheckbox = document.getElementById('cefr-cultural-checkbox');
+            
+            const options = {
+                keepNarrative: narrativeCheckbox ? narrativeCheckbox.checked : false,
+                keepCulturalRef: culturalCheckbox ? culturalCheckbox.checked : false
+            };
+            
+            closeCEFRModal();
+            const promptText = generateCEFRAdaptationPrompt(level, options);
+            
+            try {
+                await navigator.clipboard.writeText(promptText);
+                
+                // Save CEFR level to localStorage
+                localStorage.setItem('cefrLevel', level);
+                cefrLevel = level;
+                
+                // Update transcript title
+                const transcriptTitle = document.getElementById('transcript-title');
+                if (transcriptTitle) {
+                    transcriptTitle.textContent = `摘要（${level}）`;
+                }
+                
+                alert(`✅ CEFR ${level} 難度調整 Prompt 已複製到剪貼簿\n摘要標題已更新為：摘要（${level}）`);
+                console.log(`✅ CEFR ${level} Prompt已複製，標題已更新為：摘要（${level}）`);
+            } catch (err) {
+                console.error('複製失敗:', err);
+                alert('複製失敗，請重試');
+            }
+        }
+
+        function copyPrompt() {
+            let promptText = '';
+            
+            if (window.currentModalMode === 'transcript') {
+                promptText = generateTranscriptPrompt();
+            } else if (window.currentModalMode === 'vocab') {
+                promptText = generateVocabPrompt();
+            } else if (window.currentModalMode === 'quiz') {
+                promptText = generateQuizPrompt();
+            }
+            
+            if (!promptText) {
+                alert('無法生成prompt');
+                return;
+            }
+            
+            navigator.clipboard.writeText(promptText).then(() => {
+                const copyBtn = document.getElementById('copy-prompt-btn');
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-outlined">done</span>';
+                copyBtn.style.color = '#10b981';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    copyBtn.style.color = '';
+                }, 2000);
+                
+                console.log('✅ Prompt已複製到剪貼簿');
+            }).catch(err => {
+                console.error('複製失敗:', err);
+                alert('複製失敗，請重試');
+            });
+        }
+
+        async function copyTranscriptPromptFromClipboard() {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                const sourceText = clipboardText.trim() ? clipboardText.trim() : '🔻';
+                const promptText = `${sourceText}
+
+將以上未經整理的文稿內容，整理成英文和中文隨段落對照的逐字稿，並以以下格式嚴格依照 JSON Array 格式輸出結果：：
+{
+    en: "When I found out my grandmother, my last living grandparent, was dying, my first thought was, \"I need to draw her hands.\" I'm a visual artist, a cartoonist for The New Yorker, and comics writer, so drawing is how I understand much of the world.",
+    cn: "當我得知我的祖母——我最後一位在世的祖父母——即將離世時，我的第一個念頭是：「我需要畫下她的手。」我是一位視覺藝術家，也是《紐約客》的漫畫家和漫畫作者，所以繪畫是我理解這個世界的主要方式。"
+},
+{
+    en: "For a long time, my cartoons had been impersonal. Commentary on the world around me, sure, but not really about me. The closest my personal life got to influencing my cartoons were cartoons I lifted from things my friends and family had said around me. It was only after my daughter Ellika was born that my personal life began to creep into my cartoons more.",
+    cn: "很長一段時間以來，我的漫畫都是非個人化的。它們是對周遭世界的評論，沒錯，但並不真正關於我自己。我的個人生活對漫畫最接近的影響，頂多就是從朋友和家人的談話中取材。直到我女兒埃莉卡 (Ellika) 出生後，我的個人生活才開始更多地滲透進我的漫畫中。"
+}`;
+
+                await navigator.clipboard.writeText(promptText);
+                const originalHTML = transcriptPromptBtn.innerHTML;
+                transcriptPromptBtn.innerHTML = '<span class="material-symbols-outlined text-base align-middle">done</span> 已複製';
+                transcriptPromptBtn.classList.remove('bg-blue-50', 'text-blue-700');
+                transcriptPromptBtn.classList.add('bg-emerald-50', 'text-emerald-700');
+
+                setTimeout(() => {
+                    transcriptPromptBtn.innerHTML = originalHTML;
+                    transcriptPromptBtn.classList.remove('bg-emerald-50', 'text-emerald-700');
+                    transcriptPromptBtn.classList.add('bg-blue-50', 'text-blue-700');
+                }, 2000);
+            } catch (err) {
+                console.error('讀取或複製剪貼簿失敗:', err);
+                alert('無法讀取剪貼簿內容，請允許瀏覽器存取剪貼簿後重試。');
+            }
+        }
+
+        function parseJSON(str) {
+            str = str.trim();
+            // 如果不是 [ 或 { 開頭，假設為陣列並加上 []
+            if (!str.startsWith('[') && !str.startsWith('{')) {
+                str = '[' + str + ']';
+            }
+            return JSON.parse(str);
+        }
+
+        function parseVideoUrl() {
+            try {
+                const input = inputArea.value.trim();
+                let id = input;
+                
+                let m = input.match(/[?&]v=([^&]+)/);
+                if (m) id = m[1];
+                
+                m = input.match(/youtu\.be\/([^?]+)/);
+                if (m) id = m[1];
+                
+                id = id.split('&')[0].split('?')[0];
+                
+                if (id.length !== 11) throw new Error("無效的影片 ID");
+                
+                // Save to localStorage
+                localStorage.setItem('videoId', id);
+                
+                // Clear selected words when setting new video
+                selectedWords = [];
+                localStorage.setItem('selectedWords', JSON.stringify(selectedWords));
+                
+                console.log(`✅ 影片設定為: ${id}`);
+                console.log(`✅ 已清空選取的生字，即將重新整理頁面...`);
+                
+                // Reload page to reset everything
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } catch (e) {
+                console.error("錯誤: " + e.message);
+            }
+        }
+
+        function parseTranscript() {
+            try {
+                const data = parseJSON(inputArea.value);
+                if (!Array.isArray(data)) throw new Error("必須是陣列");
+                
+                // Auto-add "t" field if missing (set to 0 or incremental)
+                data.forEach((item, index) => {
+                    if (!item.hasOwnProperty('t')) {
+                        item.t = index * 10; // Default: 10 seconds apart
+                    }
+                });
+                
+                transcriptData = data;
+                localStorage.setItem('transcriptData', JSON.stringify(transcriptData));
+                
+                // Clear CEFR level when importing new transcript
+                localStorage.removeItem('cefrLevel');
+                cefrLevel = '';
+                const transcriptTitle = document.getElementById('transcript-title');
+                if (transcriptTitle) {
+                    transcriptTitle.textContent = '逐字稿';
+                }
+                
+                renderTranscript();
+                closeModal();
+            } catch (e) {
+                console.error("格式錯誤: " + e.message);
+                alert("匯入失敗：" + e.message + "\n\n請確認 JSON 格式正確");
+            }
+        }
+
+        function parseVocab() {
+            try {
+                const data = parseJSON(inputArea.value);
+                if (!Array.isArray(data)) throw new Error("必須是陣列");
+                vocabData = data;
+                localStorage.setItem('vocabData', JSON.stringify(vocabData));
+                renderTranscript();
+                renderVocab();
+                closeModal();
+            } catch (e) {
+                console.error("格式錯誤: " + e.message);
+            }
+        }
+
+        function parseQuiz() {
+            try {
+                const inputValue = inputArea.value.trim();
+                if (!inputValue) {
+                    alert('請輸入 Quiz 資料');
+                    return;
+                }
+                
+                const data = parseJSON(inputValue);
+                
+                // 檢查是否為雙語格式 { english: [...], chinese: [...] }
+                if (typeof data === 'object' && data !== null && !Array.isArray(data) && 'english' in data && 'chinese' in data) {
+                    // 雙語格式
+                    if (!Array.isArray(data.english) || !Array.isArray(data.chinese)) {
+                        alert("錯誤：english 和 chinese 都必須是陣列");
+                        return;
+                    }
+                    if (data.english.length === 0 && data.chinese.length === 0) {
+                        alert("錯誤：題庫不能為空");
+                        return;
+                    }
+                    quizData = data; // 保存整個雙語物件
+                    localStorage.setItem('quizData', JSON.stringify(quizData));
+                    closeModal();
+                    alert(`✅ 雙語 Quiz 題庫已匯入\n\n英文：${data.english.length} 題\n中文：${data.chinese.length} 題`);
+                    console.log(`✅ 雙語 Quiz 題庫已匯入: 英文 ${data.english.length} 題、中文 ${data.chinese.length} 題`);
+                } else if (Array.isArray(data)) {
+                    // 傳統格式 - 單一陣列
+                    if (data.length === 0) {
+                        alert("錯誤：題庫不能為空");
+                        return;
+                    }
+                    quizData = data;
+                    localStorage.setItem('quizData', JSON.stringify(quizData));
+                    closeModal();
+                    alert(`✅ Quiz 題庫已匯入：${quizData.length} 題`);
+                    console.log(`✅ Quiz 題庫已匯入: ${quizData.length} 題`);
+                } else {
+                    alert("格式錯誤：必須是陣列或雙語物件\n\n正確格式：\n{ \"english\": [...], \"chinese\": [...] }\n或\n[{\"q\":\"...\", \"options\":[...], \"correct\":0}]");
+                }
+            } catch (e) {
+                alert("格式錯誤：" + e.message + "\n\n請確認 JSON 格式是否正確");
+                console.error("格式錯誤: ", e);
+            }
+        }
+
+        function clearTranscriptData() {
+            transcriptData = [];
+            selectedWords = [];
+            localStorage.setItem('transcriptData', JSON.stringify(transcriptData));
+            localStorage.setItem('selectedWords', JSON.stringify(selectedWords));
+            console.log('✅ 逐字稿紀錄已清除');
+            setTimeout(() => location.reload(), 500);
+        }
+
+        function clearVocabData() {
+            vocabData = [];
+            localStorage.setItem('vocabData', JSON.stringify(vocabData));
+            console.log('✅ 單字紀錄已清除');
+            setTimeout(() => location.reload(), 500);
+        }
+
+        function clearQuizData() {
+            quizData = [];
+            localStorage.setItem('quizData', JSON.stringify(quizData));
+            console.log('✅ Quiz 題庫已清除');
+            setTimeout(() => location.reload(), 500);
+        }
+
+        // Render Functions
+        function renderTranscript() {
+            const container = document.getElementById('transcript-content');
+            if (transcriptData.length === 0) return;
+            
+            container.innerHTML = "";
+            const sortedVocab = [...vocabData].sort((a,b) => b.word.length - a.word.length);
+
+            transcriptData.forEach((seg, idx) => {
+                let text = seg.en;  // 保持純文本進行替換
+                
+                // 先進行所有替換，建立標記列表
+                const replacements = [];
+                
+                // Collect all vocab replacements
+                sortedVocab.forEach(v => {
+                    const roots = v.roots || [v.word];
+                    const pattern = roots.map(r => r.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+                    const regex = new RegExp(`\\b(${pattern})\\b`, 'gi');
+                    let match;
+                    while ((match = regex.exec(text)) !== null) {
+                        replacements.push({
+                            start: match.index,
+                            end: match.index + match[0].length,
+                            word: match[0],
+                            vocab: v,
+                            type: 'vocab'
+                        });
+                    }
+                });
+                
+                // Collect all selected word replacements
+                selectedWords.forEach(word => {
+                    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`\\b(${escaped})\\b`, 'gi');
+                    let match;
+                    while ((match = regex.exec(text)) !== null) {
+                        replacements.push({
+                            start: match.index,
+                            end: match.index + match[0].length,
+                            word: match[0],
+                            selectedWord: word,
+                            type: 'selected'
+                        });
+                    }
+                });
+                
+                // Sort by start position (descending) to replace from end to start
+                replacements.sort((a, b) => b.start - a.start);
+                
+                // Remove overlapping replacements (keep the first one found)
+                const finalReplacements = [];
+                replacements.forEach(rep => {
+                    const overlaps = finalReplacements.some(r => 
+                        (rep.start >= r.start && rep.start < r.end) ||
+                        (rep.end > r.start && rep.end <= r.end)
+                    );
+                    if (!overlaps) {
+                        finalReplacements.push(rep);
+                    }
+                });
+                
+                // Apply replacements from end to start
+                let html = text;
+                finalReplacements.forEach(rep => {
+                    const before = html.substring(0, rep.start);
+                    const after = html.substring(rep.end);
+                    let replacement = '';
+                    
+                    if (rep.type === 'vocab') {
+                        const isCustom = rep.vocab.custom ? 'vocab-word-custom' : 'vocab-word';
+                        replacement = `<span class="${isCustom}" data-id="${rep.vocab.id || rep.vocab.word}" 
+                                           onmouseenter="showCard(event, '${rep.vocab.id || rep.vocab.word}')" 
+                                           onmouseleave="hideCard()" 
+                                           onclick="toggleCard(event, '${rep.vocab.id || rep.vocab.word}')">${rep.word}</span>`;
+                    } else if (rep.type === 'selected') {
+                        replacement = `<span class="selected-word" onclick="removeSelectedWord('${rep.selectedWord}')" style="cursor: pointer; text-decoration: underline;" title="點擊取消選取">${rep.word}</span>`;
+                    }
+                    
+                    html = before + replacement + after;
+                });
+
+                const hasTime = typeof seg.t === 'number';
+                const timeLabel = hasTime ? formatTime(seg.t) : 'Set';
+                const timeClass = hasTime ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-600';
+                const minutes = hasTime ? Math.floor(seg.t / 60) : '';
+                const seconds = hasTime ? seg.t % 60 : '';
+
+                container.innerHTML += `
+                    <div class="mb-6" id="seg-${idx}">
+                        <div class="flex gap-2 mb-2 flex-wrap items-center">
+                            <button class="px-3 py-1.5 rounded-lg border-2 ${timeClass} text-xs font-semibold transition-colors" 
+                                    onclick="jumpToTime(${hasTime ? seg.t : 'null'})">
+                                ⏵ ${timeLabel}
+                            </button>
+                            <div class="flex items-center gap-0 bg-blue-50 rounded-lg border-2 border-blue-200 overflow-hidden">
+
+                                <div class="flex items-center gap-0.5 px-2 py-1.5">
+                                    <input type="number" id="min-input-${idx}" min="0" max="999" step="1" 
+                                           class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                           placeholder="0" value="${minutes}"
+                                           onchange="setTimeByInput(${idx})"
+                                           onkeypress="if(event.key==='Enter') setTimeByInput(${idx})">
+                                    <span class="text-xs font-bold text-blue-700">:</span>
+                                    <input type="number" id="sec-input-${idx}" min="0" max="59" step="1" 
+                                           class="w-14 px-2 py-0.5 rounded border border-blue-300 bg-white text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                           placeholder="00" value="${seconds ? String(seconds).padStart(2, '0') : ''}"
+                                           onchange="setTimeByInput(${idx})"
+                                           onkeypress="if(event.key==='Enter') setTimeByInput(${idx})">
+                                <div class="h-6 w-px bg-blue-200 ml-3"></div>
+                                
+                                   </div>
+                            </div>
+                            <button class="px-3 py-1.5 rounded-lg border-2 border-amber-200 bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100 transition-colors" 
+                                    onclick="editSegment(${idx})">
+                                ✏️ Edit
+                            </button>
+                            </div>
+                        <p class="mb-2 text-slate-800 leading-relaxed" id="en-${idx}">${html}</p>
+                        ${seg.cn ? `<p class="cn-text hidden text-slate-600 pl-4 border-l-4 border-blue-200 italic text-base" id="cn-${idx}">${seg.cn}</p>` : ''}
+                    </div>`;
+            });
+            
+            applyTranslationState();
+        }
+
+        function showAddVocabModal() {
+            document.getElementById('add-vocab-modal').classList.remove('hidden');
+            document.getElementById('add-vocab-input').focus();
+        }
+
+        function closeAddVocabModal() {
+            document.getElementById('add-vocab-modal').classList.add('hidden');
+            // 清空表單
+            document.getElementById('add-vocab-input').value = '';
+        }
+
+        function addNewVocabFromJSON() {
+            try {
+                const input = document.getElementById('add-vocab-input').value.trim();
+                if (!input) {
+                    alert('請輸入單字資料');
+                    return;
+                }
+                
+                const data = parseJSON(input);
+                if (!Array.isArray(data)) {
+                    alert('格式錯誤：必須是陣列');
+                    return;
+                }
+                
+                if (data.length === 0) {
+                    alert('請至少新增一個單字');
+                    return;
+                }
+                
+                let addedCount = 0;
+                data.forEach(item => {
+                    if (!item.word) return; // 跳過沒有 word 的項目
+                    
+                    // 檢查是否重複
+                    if (vocabData.some(v => v.word.toLowerCase() === item.word.toLowerCase())) {
+                        console.warn(`⚠️ 單字已存在，已跳過: ${item.word}`);
+                        return;
+                    }
+                    
+                    // 添加新單字（標記為自訂：custom: true）
+                    const newVocab = {
+                        id: item.word.toLowerCase(),
+                        word: item.word.charAt(0).toUpperCase() + item.word.slice(1).toLowerCase(),
+                        def: item.def || '',
+                        cn: item.cn || '',
+                        pos: item.pos || '',
+                        custom: true  // 標記為自訂單字
+                    };
+                    
+                    vocabData.push(newVocab);
+                    addedCount++;
+                });
+                
+                if (addedCount === 0) {
+                    alert('所有單字都已存在或格式不正確');
+                    return;
+                }
+                
+                localStorage.setItem('vocabData', JSON.stringify(vocabData));
+                renderVocab();
+                renderTranscript();
+                closeAddVocabModal();
+                
+                alert(`✅ 已新增 ${addedCount} 個生字`);
+                console.log(`✅ 已新增 ${addedCount} 個生字`);
+            } catch (e) {
+                alert('格式錯誤：' + e.message + '\n\n請確認 JSON 格式是否正確');
+                console.error('格式錯誤: ', e);
+            }
+        }
+
+        function renderVocab() {
+            const list = document.getElementById('vocab-list');
+            const count = document.getElementById('vocab-count');
+            
+            if (vocabData.length === 0) return;
+            
+            count.textContent = vocabData.length;
+            list.innerHTML = "";
+            
+            const sortedVocab = [...vocabData].sort((a,b) => a.word.localeCompare(b.word));
+            sortedVocab.forEach((v, index) => {
+                list.innerHTML += `
+                    <li class="p-4 hover:bg-blue-50 cursor-pointer border-b border-slate-200 last:border-b-0" 
+                        onclick="scrollToVocab('${v.id || v.word}')">
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="text-sm font-bold text-slate-400 flex-shrink-0">${index + 1}.</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-base">${v.word}</div>
+                                    <button onclick="event.stopPropagation(); speakWord('${v.word}')" class="text-slate-400 hover:text-blue-600 transition" title="播放發音">
+                                        <span class="material-symbols-outlined text-sm">volume_up</span>
+                                    </button>
+                                </div>
+                                ${v.ipa ? `<div class="text-xs text-blue-600 font-semibold mt-1">${v.ipa}</div>` : ''}
+                                ${v.pos ? `<div class="text-xs text-slate-500 mt-0.5">${v.pos}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 mb-2 ml-6">${v.def || ''}</div>
+                        ${v.cn ? `<div class="text-xs text-blue-700 font-semibold ml-6">${v.cn}</div>` : ''}
+                    </li>`;
+            });
+        }
+        
+        function speakWord(word) {
+            // 使用 Web Speech API 播放發音
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            } else {
+                console.warn('您的瀏覽器不支援語音合成功能');
+            }
+        }
+
+        // YouTube Player
+        function onYouTubeIframeAPIReady() {
+            youtubeAPIReady = true;
+            console.log('YouTube API Ready');
+            // Only initialize player if a valid video ID is set
+            if (videoId && videoId.length === 11) {
+                player = new YT.Player('player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: { rel: 0, modestbranding: 1 },
+                    events: {
+                        onReady: () => {
+                            playerReady = true;
+                            player.setPlaybackRate(currentPlaybackSpeed);
+                            console.log('YouTube Player Ready');
+                        },
+                        onStateChange: (event) => {
+                            updatePlayPauseButton();
+                        }
+                    }
+                });
+            }
+        }
+        
+        function initializePlayer(id) {
+            // Initialize player with a specific video ID
+            if (!id || id.length !== 11) return;
+            videoId = id;
+            localStorage.setItem('videoId', id);
+            
+            // Wait for YouTube API to be ready
+            if (!youtubeAPIReady || typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+                console.log('等待 YouTube API 載入...');
+                setTimeout(() => initializePlayer(id), 200);
+                return;
+            }
+            
+            if (!player) {
+                player = new YT.Player('player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: { rel: 0, modestbranding: 1 },
+                    events: {
+                        onReady: () => {
+                            playerReady = true;
+                            player.setPlaybackRate(currentPlaybackSpeed);
+                            console.log('YouTube Player Ready');
+                        },
+                        onStateChange: (event) => {
+                            updatePlayPauseButton();
+                        }
+                    }
+                });
+            } else if (playerReady) {
+                player.loadVideoById(videoId);
+            }
+        }
+
+        function jumpToTime(seconds) {
+            if (!player || !playerReady || typeof seconds !== 'number') return;
+            player.seekTo(seconds, true);
+            player.playVideo();
+        }
+
+        
+
+        function setTimeByInput(idx) {
+            if (!transcriptData[idx]) return;
+            
+            const minInput = document.getElementById(`min-input-${idx}`);
+            const secInput = document.getElementById(`sec-input-${idx}`);
+            
+            const minutes = parseInt(minInput.value, 10) || 0;
+            const seconds = parseInt(secInput.value, 10) || 0;
+            
+            if (minutes < 0 || seconds < 0 || seconds > 59) {
+                alert('請輸入有效的時間（秒數必須 0-59）');
+                return;
+            }
+            
+            const totalSeconds = minutes * 60 + seconds;
+            transcriptData[idx].t = totalSeconds;
+            localStorage.setItem('transcriptData', JSON.stringify(transcriptData));
+            renderTranscript();
+            console.log(`✅ 時間戳記已設定: ${formatTime(totalSeconds)}`);
+        }
+
+        // Insert Transcript Modal Functions
+        let currentInsertIndex = null;
+
+        function openInsertModal(idx) {
+            currentInsertIndex = idx;
+            document.getElementById('insert-segment-index').textContent = idx + 1;
+            document.getElementById('insert-input').value = '';
+            document.getElementById('insert-modal').classList.remove('hidden');
+            document.getElementById('insert-input').focus();
+        }
+
+        function closeInsertModal() {
+            document.getElementById('insert-modal').classList.add('hidden');
+            currentInsertIndex = null;
+        }
+
+        function copyInsertPrompt() {
+            let promptText = '';
+            
+            // Add video URL if available
+            if (videoId && videoId.length === 11) {
+                promptText += `https://www.youtube.com/watch?v=${videoId}\n\n`;
+            } else {
+                promptText += '🔻\n\n';
+            }
+            
+            promptText += `將以上影片從 ${formatTime(transcriptData[currentInsertIndex]?.t || 0)} 開始的演講內容，整理成英文和中文隨段落對照的逐字稿，並以以下格式嚴格依照 JSON Array 格式輸出結果：
+{
+    en: "When I found out my grandmother, my last living grandparent, was dying, my first thought was, \"I need to draw her hands.\" I'm a visual artist, a cartoonist for The New Yorker, and comics writer, so drawing is how I understand much of the world.",
+    cn: "當我得知我的祖母——我最後一位在世的祖父母——即將離世時，我的第一個念頭是：「我需要畫下她的手。」我是一位視覺藝術家，也是《紐約客》的漫畫家和漫畫作者，所以繪畫是我理解這個世界的主要方式。"
+},
+{
+    en: "For a long time, my cartoons had been impersonal. Commentary on the world around me, sure, but not really about me. The closest my personal life got to influencing my cartoons were cartoons I lifted from things my friends and family had said around me. It was only after my daughter Ellika was born that my personal life began to creep into my cartoons more.",
+    cn: "很長一段時間以來，我的漫畫都是非個人化的。它們是對周遭世界的評論，沒錯，但並不真正關於我自己。我的個人生活對漫畫最接近的影響，頂多就是從朋友和家人的談話中取材。直到我女兒埃莉卡 (Ellika) 出生後，我的個人生活才開始更多地滲透進我的漫畫中。"
+}`;
+            
+            navigator.clipboard.writeText(promptText).then(() => {
+                const copyBtn = document.getElementById('copy-insert-prompt-btn');
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-outlined">done</span>';
+                copyBtn.classList.remove('bg-indigo-50', 'text-indigo-700');
+                copyBtn.classList.add('bg-green-50', 'text-green-700');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    copyBtn.classList.remove('bg-green-50', 'text-green-700');
+                    copyBtn.classList.add('bg-indigo-50', 'text-indigo-700');
+                }, 2000);
+                
+                console.log('✅ Insert Prompt已複製到剪貼簿');
+            }).catch(err => {
+                console.error('複製失敗:', err);
+                alert('複製失敗，請重試');
+            });
+        }
+
+        function insertTranscriptFromIndex() {
+            if (currentInsertIndex === null || currentInsertIndex === undefined) return;
+            
+            try {
+                const input = document.getElementById('insert-input').value.trim();
+                if (!input) {
+                    alert('請輸入逐字稿資料');
+                    return;
+                }
+                
+                const newData = parseJSON(input);
+                if (!Array.isArray(newData)) {
+                    alert('格式錯誤：必須是陣列');
+                    return;
+                }
+                
+                if (newData.length === 0) {
+                    alert('請至少輸入一段逐字稿');
+                    return;
+                }
+                
+                // Preserve segments before currentInsertIndex, replace everything from currentInsertIndex onwards
+                const preservedSegments = transcriptData.slice(0, currentInsertIndex);
+                transcriptData = [...preservedSegments, ...newData];
+                
+                localStorage.setItem('transcriptData', JSON.stringify(transcriptData));
+                renderTranscript();
+                closeInsertModal();
+                
+                alert(`✅ 已從段落 ${currentInsertIndex + 1} 插入 ${newData.length} 段逐字稿\n保留前 ${currentInsertIndex} 段，總共 ${transcriptData.length} 段`);
+                console.log(`✅ 插入逐字稿: 保留 ${currentInsertIndex} 段，新增 ${newData.length} 段，總計 ${transcriptData.length} 段`);
+            } catch (e) {
+                alert('格式錯誤：' + e.message + '\n\n請確認 JSON 格式是否正確');
+                console.error('格式錯誤: ', e);
+            }
+        }
+
+        function editSegment(idx) {
+            const seg = transcriptData[idx];
+            if (!seg) return;
+            
+            // Store current editing index
+            window.currentEditIndex = idx;
+            
+            // Fill in the modal
+            document.getElementById('edit-en-input').value = seg.en || '';
+            document.getElementById('edit-cn-input').value = seg.cn || '';
+            
+            // Show modal
+            document.getElementById('edit-modal').classList.remove('hidden');
+            
+            // Focus on English input
+            setTimeout(() => {
+                document.getElementById('edit-en-input').focus();
+            }, 100);
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+            window.currentEditIndex = null;
+        }
+
+        function saveEdit() {
+            const idx = window.currentEditIndex;
+            if (idx === null || idx === undefined || !transcriptData[idx]) return;
+            
+            const enText = document.getElementById('edit-en-input').value.trim();
+            const cnText = document.getElementById('edit-cn-input').value.trim();
+            
+            if (enText) {
+                transcriptData[idx].en = enText;
+            }
+            
+            transcriptData[idx].cn = cnText;
+            
+            localStorage.setItem('transcriptData', JSON.stringify(transcriptData));
+            renderTranscript();
+            closeEditModal();
+        }
+
+        function formatTime(sec) {
+            if (typeof sec !== 'number' || sec < 0) return '00:00';
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        // Interaction
+        function showCard(e, id) {
+            const vocab = vocabData.find(v => (v.id === id) || (v.word === id));
+            if (!vocab) return;
+            
+            floatingCard.dataset.currentId = id;
+            floatingCard.innerHTML = `
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-2">
+                        <h3 class="text-xl font-bold flex-1">${vocab.word}</h3>
+                        <button onclick="event.stopPropagation(); speakWord('${vocab.word}')" class="ml-2 p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition" title="播放發音">
+                            <span class="material-symbols-outlined text-lg">volume_up</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-500 mb-1">${vocab.pos || ''}</div>
+                    ${vocab.ipa ? `<div class="text-xs text-blue-600 font-semibold mb-3">${vocab.ipa}</div>` : ''}
+                    <p class="text-sm mb-3">${vocab.def}</p>
+                    ${vocab.cn ? `<p class="text-xs text-blue-700 font-bold">${vocab.cn}</p>` : ''}
+                </div>`;
+            
+            const rect = e.target.getBoundingClientRect();
+            const cardWidth = 320;
+            const cardHeight = 200; // 預估高度
+            const padding = 10;
+            
+            // 計算最佳位置（避免超出螢幕）
+            let left = rect.left;
+            let top = rect.bottom + padding;
+            
+            // 水平方向調整
+            if (left + cardWidth > window.innerWidth) {
+                left = window.innerWidth - cardWidth - padding;
+            }
+            if (left < padding) {
+                left = padding;
+            }
+            
+            // 垂直方向調整（如果下方空間不足，顯示在上方）
+            if (top + cardHeight > window.innerHeight) {
+                top = rect.top - cardHeight - padding;
+                if (top < padding) {
+                    top = padding;
+                }
+            }
+            
+            floatingCard.style.left = left + 'px';
+            floatingCard.style.top = top + 'px';
+            floatingCard.classList.remove('hidden');
+        }
+        
+        function toggleCard(e, id) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            // 如果已經顯示同一個字卡，則關閉
+            if (!floatingCard.classList.contains('hidden') && floatingCard.dataset.currentId === id) {
+                hideCard();
+            } else {
+                showCard(e, id);
+            }
+        }
+
+        function hideCard() {
+            floatingCard.classList.add('hidden');
+            floatingCard.dataset.currentId = '';
+        }
+        
+        // 點擊外部關閉字卡
+        document.addEventListener('click', function(e) {
+            // 延遲執行，讓 toggleCard 先完成
+            setTimeout(() => {
+                if (!floatingCard.classList.contains('hidden') && 
+                    !floatingCard.contains(e.target) && 
+                    !e.target.closest('.vocab-word') && 
+                    !e.target.closest('.vocab-word-custom')) {
+                    hideCard();
+                }
+            }, 100);
+        });
+
+        function toggleTranslations() {
+            translationsVisible = !translationsVisible;
+            const toggleBtnText = document.getElementById('toggle-btn-text');
+            const cnToggleText = document.getElementById('cn-toggle-text');
+            
+            if (toggleBtnText) {
+                toggleBtnText.innerText = translationsVisible ? "Hide CN" : "Show CN";
+            }
+            if (cnToggleText) {
+                cnToggleText.innerText = translationsVisible ? "隱藏" : "中文";
+            }
+            
+            applyTranslationState();
+        }
+
+        // Quiz Logic
+        function openQuiz() {
+            const modal = document.getElementById('quiz-modal');
+            modal.classList.remove('hidden');
+            
+            // 檢查是否為雙語格式
+            const isBilingual = typeof quizData === 'object' && quizData !== null && !Array.isArray(quizData) && 'english' in quizData && 'chinese' in quizData;
+            
+            // 顯示或隱藏語言選擇器
+            const languageSelector = document.getElementById('quiz-language-selector');
+            if (isBilingual) {
+                languageSelector.classList.remove('hidden');
+                updateQuizLanguageSelector();
+            } else {
+                languageSelector.classList.add('hidden');
+            }
+            
+            renderQuizContent();
+        }
+
+        function renderQuizContent() {
+            const content = document.getElementById('quiz-content');
+            const footer = document.getElementById('quiz-footer');
+
+            // 檢查是否為雙語格式或傳統格式
+            let questionsToDisplay = [];
+            let isBilingual = false;
+            
+            if (typeof quizData === 'object' && quizData !== null && !Array.isArray(quizData) && 'english' in quizData && 'chinese' in quizData) {
+                // 雙語格式
+                isBilingual = true;
+                questionsToDisplay = quizLanguage === 'english' ? quizData.english : quizData.chinese;
+            } else if (Array.isArray(quizData)) {
+                // 傳統格式
+                questionsToDisplay = quizData;
+            }
+
+            if (!Array.isArray(questionsToDisplay) || questionsToDisplay.length === 0) {
+                content.innerHTML = `
+                    <div class="p-6 rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
+                        尚未匯入 Quiz 題庫，請先用上方的 Quiz Data 按鈕貼上題庫。
+                    </div>
+                `;
+                footer.innerHTML = `<button onclick="closeQuiz()" class="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-900 transition">Close</button>`;
+                return;
+            }
+
+            footer.innerHTML = `<button onclick="submitQuiz()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-md transition">Submit Answers</button>`;
+
+            content.innerHTML = questionsToDisplay.map((q, i) => `
+                <div class="mb-6 p-5 rounded-xl border border-gray-100 hover:border-blue-100 transition-colors" id="q-block-${i}">
+                    <p class="font-bold text-lg mb-4 text-slate-800 flex gap-2">
+                        <span class="bg-blue-100 text-blue-700 w-7 h-7 flex items-center justify-center rounded-full text-sm shrink-0">${i + 1}</span>
+                        ${q.q}
+                    </p>
+                    <div class="space-y-3 pl-9">
+                        ${(q.options || []).map((opt, optIdx) => `
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition group">
+                                <input type="radio" name="q${i}" value="${optIdx}" class="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                <span class="text-slate-600 group-hover:text-slate-900">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div class="feedback hidden mt-4 ml-9 p-3 rounded-lg text-sm font-bold flex items-center gap-2"></div>
+                </div>
+            `).join('');
+        }
+
+        function closeQuiz() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            let allAnswered = true;
+
+            // 決定使用哪份題庫
+            let questionsToScore = [];
+            if (typeof quizData === 'object' && quizData !== null && !Array.isArray(quizData) && 'english' in quizData && 'chinese' in quizData) {
+                // 雙語格式 - 根據選擇的語言取用對應版本
+                questionsToScore = quizLanguage === 'english' ? quizData.english : quizData.chinese;
+            } else if (Array.isArray(quizData)) {
+                // 傳統格式
+                questionsToScore = quizData;
+            }
+
+            questionsToScore.forEach((q, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const block = document.getElementById(`q-block-${i}`);
+                const feedback = block ? block.querySelector('.feedback') : null;
+
+                if (!block || !feedback) return;
+
+                block.classList.remove('bg-green-50', 'border-green-200', 'bg-red-50', 'border-red-200');
+                feedback.className = 'feedback hidden mt-4 ml-9 p-3 rounded-lg text-sm font-bold flex items-center gap-2';
+
+                if (selected) {
+                    feedback.classList.remove('hidden');
+                    if (parseInt(selected.value, 10) === q.correct) {
+                        score++;
+                        feedback.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Correct!`;
+                        feedback.classList.add('bg-green-100', 'text-green-700');
+                        block.classList.add('bg-green-50/50', 'border-green-200');
+                    } else {
+                        feedback.innerHTML = `<span class="material-symbols-outlined">cancel</span> Incorrect. The correct answer is: <span class="italic">${q.options[q.correct]}</span>`;
+                        feedback.classList.add('bg-red-100', 'text-red-700');
+                        block.classList.add('bg-red-50/50', 'border-red-200');
+                    }
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            const footer = document.getElementById('quiz-footer');
+            if (allAnswered || confirm("You haven't answered all questions. Submit anyway?")) {
+                let message = '';
+                let colorClass = '';
+
+                if (score === questionsToScore.length) {
+                    message = 'Perfect Score! 🎉';
+                    colorClass = 'text-green-600';
+                } else if (score > questionsToScore.length / 2) {
+                    message = 'Great Job! 👍';
+                    colorClass = 'text-blue-600';
+                } else {
+                    message = 'Keep Practicing! 💪';
+                    colorClass = 'text-orange-500';
+                }
+
+                footer.innerHTML = `
+                    <div class="flex items-center gap-4 w-full justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase tracking-wider font-bold">Your Score</p>
+                            <p class="text-2xl font-bold ${colorClass}">${score} / ${questionsToScore.length} - ${message}</p>
+                        </div>
+                        <button onclick="closeQuiz()" class="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-900 transition">Close</button>
+                    </div>`;
+            }
+        }
+
+        function applyTranslationState() {
+            document.querySelectorAll('.cn-text').forEach(el => {
+                if (translationsVisible) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function scrollToVocab(id) {
+            const span = document.querySelector(`.vocab-word[data-id="${id}"]`);
+            if (span) {
+                span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function increaseFontSize() {
+            if (currentFontSize < 32) {
+                currentFontSize += 2;
+                applyFontSize();
+            }
+        }
+
+        function decreaseFontSize() {
+            if (currentFontSize > 12) {
+                currentFontSize -= 2;
+                applyFontSize();
+            }
+        }
+
+        function applyFontSize() {
+            const transcriptContent = document.getElementById('transcript-content');
+            if (transcriptContent) {
+                transcriptContent.style.fontSize = currentFontSize + 'px';
+            }
+        }
+
+        function increasePlaybackSpeed() {
+            if (!player || !playerReady) return;
+            const speeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+            const currentIndex = speeds.indexOf(currentPlaybackSpeed);
+            if (currentIndex < speeds.length - 1) {
+                currentPlaybackSpeed = speeds[currentIndex + 1];
+                player.setPlaybackRate(currentPlaybackSpeed);
+                updateSpeedDisplay();
+            }
+        }
+
+        function decreasePlaybackSpeed() {
+            if (!player || !playerReady) return;
+            const speeds = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+            const currentIndex = speeds.indexOf(currentPlaybackSpeed);
+            if (currentIndex > 0) {
+                currentPlaybackSpeed = speeds[currentIndex - 1];
+                player.setPlaybackRate(currentPlaybackSpeed);
+                updateSpeedDisplay();
+            }
+        }
+
+        function updateSpeedDisplay() {
+            const display = document.getElementById('speed-display');
+            if (display) {
+                display.textContent = currentPlaybackSpeed.toFixed(2) + 'x';
+            }
+        }
+
+        function togglePlayPause() {
+            if (!player || !playerReady) return;
+            
+            const state = player.getPlayerState();
+            const playIcon = document.getElementById('play-icon');
+            const playText = document.getElementById('play-text');
+            
+            // YT.PlayerState: UNSTARTED (-1), ENDED (0), PLAYING (1), PAUSED (2), BUFFERING (3), CUED (5)
+            if (state === 1) { // Playing
+                player.pauseVideo();
+                playIcon.textContent = 'play_arrow';
+                playText.textContent = '播放';
+            } else { // Paused or other states
+                player.playVideo();
+                playIcon.textContent = 'pause';
+                playText.textContent = '暫停';
+            }
+        }
+
+        function updatePlayPauseButton() {
+            if (!player || !playerReady) return;
+            const state = player.getPlayerState();
+            const playIcon = document.getElementById('play-icon');
+            const playText = document.getElementById('play-text');
+            
+            if (state === 1) { // Playing
+                playIcon.textContent = 'pause';
+                playText.textContent = '暫停';
+            } else {
+                playIcon.textContent = 'play_arrow';
+                playText.textContent = '播放';
+            }
+        }
+
+        function resetSettings() {
+            currentFontSize = 18;
+            applyFontSize();
+            
+            if (player && playerReady) {
+                currentPlaybackSpeed = 1.0;
+                player.setPlaybackRate(currentPlaybackSpeed);
+                updateSpeedDisplay();
+            }
+            
+            translationsVisible = false;
+            const toggleBtnText = document.getElementById('toggle-btn-text');
+            const cnToggleText = document.getElementById('cn-toggle-text');
+            if (toggleBtnText) toggleBtnText.innerText = 'Show CN';
+            if (cnToggleText) cnToggleText.innerText = '中文';
+            applyTranslationState();
+        }
+
+        function changeVideoUrl() {
+            const newUrl = prompt('貼上 YouTube 網址或影片 ID:', videoId);
+            if (!newUrl || newUrl.trim() === '') return;
+            
+            try {
+                let id = newUrl.trim();
+                
+                // 提取影片 ID
+                let m = id.match(/[?&]v=([^&]+)/);
+                if (m) id = m[1];
+                
+                m = id.match(/youtu\.be\/([^?]+)/);
+                if (m) id = m[1];
+                
+                id = id.split('&')[0].split('?')[0];
+                
+                if (id.length !== 11) throw new Error("無效的影片 ID");
+                
+                videoId = id;
+                if (player && playerReady) {
+                    player.loadVideoById(videoId);
+                    console.log(`✅ 影片已更換: ${videoId}`);
+                }
+            } catch (e) {
+                console.error("錯誤: " + e.message);
+            }
+        }
+
+        // Export Function
+        function downloadHTML() {
+            const clone = document.documentElement.cloneNode(true);
+            
+            // Replace entire navigation bar with simplified Export-only version
+            const nav = clone.querySelector('nav');
+            if (nav) {
+                nav.innerHTML = `
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                        <div class="flex justify-between h-16 items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white text-xl">school</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="font-bold text-lg text-slate-900">StudyEngine</div>
+                                    <div class="text-xs text-slate-500 hidden sm:block">英語學習平台</div>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <button onclick="toggleExportMenu()" class="px-3 py-2 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 transition text-sm font-medium flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-lg">bookmark</span>
+                                    <span class="hidden sm:inline">Export Words (</span><span class="sm:hidden">(</span><span id="selected-count">${selectedWords.length}</span><span>)</span>
+                                </button>
+                                <div id="export-menu" class="hidden absolute top-full right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg z-50 min-w-max overflow-hidden">
+                                    <button onclick="copyExportPrompt()" class="w-full px-4 py-2.5 text-left hover:bg-blue-50 border-b border-slate-100 flex items-center gap-2 text-sm" title="複製生成AI指令的Prompt">
+                                        <span class="material-symbols-outlined text-sm text-blue-600">content_copy</span> <span>複製 Prompt</span>
+                                    </button>
+                                    <button onclick="exportSelectedWords()" class="w-full px-4 py-2.5 text-left hover:bg-blue-50 flex items-center gap-2 text-sm" title="下載選中的生字">
+                                        <span class="material-symbols-outlined text-sm text-blue-600">download</span> <span>下載文字檔</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Remove all Five Server and third-party injected code
+            const scriptsToRemove = clone.querySelectorAll('script[data-id="five-server"], script[id="www-widgetapi-script"]');
+            scriptsToRemove.forEach(s => s.remove());
+            
+            // Remove all injected styles (Five Server, Tailwind compiled, third-party)
+            const stylesToRemove = clone.querySelectorAll('style[id*="five"], style[class*="five"], style:not([type])');
+            stylesToRemove.forEach(s => {
+                const content = s.textContent || '';
+                if (content.includes('five-server') || 
+                    content.includes('fiveserver') || 
+                    content.includes('keyword-info') ||
+                    content.includes('tippy-') ||
+                    content.includes('ubersuggest') ||
+                    content.includes('bl-info') ||
+                    content.includes('kw-info') ||
+                    content.includes('statistics-graph') ||
+                    content.includes('ue-sidebar') ||
+                    content.includes('tw-border-spacing') ||
+                    content.includes('tailwindcss v3.4')) {
+                    s.remove();
+                }
+            });
+            
+            // Remove Ubersuggest/extension divs
+            const extensionDivs = clone.querySelectorAll('.ue-sidebar-container, [class*="ubersuggest"]');
+            extensionDivs.forEach(div => div.remove());
+
+            let html = clone.outerHTML;
+
+            // Fix toggleExportMenu function for exported file (use 'export-menu' instead of type parameter)
+            html = html.replace(
+                /function toggleExportMenu\(type = 'desktop'\) \{\s*const menuId = type === 'mobile' \? 'export-menu-mobile' : 'export-menu-desktop';/,
+                `function toggleExportMenu(type = 'desktop') {
+            const menuId = 'export-menu';`
+            );
+            
+            // Add toggleMobileMenu function if not present
+            if (!html.includes('function toggleMobileMenu()')) {
+                const insertPoint = html.indexOf('function toggleExportMenu');
+                if (insertPoint !== -1) {
+                    html = html.slice(0, insertPoint) + 
+                           `function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('hamburger-btn');
+            if (!menu || !btn) return;
+            menu.classList.toggle('hidden');
+            btn.classList.toggle('active');
+        }
+
+        ` + 
+                           html.slice(insertPoint);
+                }
+            }
+
+            // Remove Insert button from exported file
+            html = html.replace(
+                /<button[^>]*onclick="openInsertModal\([^)]*\)"[^>]*>[\s\S]*?<\/button>\s*/g,
+                ''
+            );
+
+            // Inject data (keep videoId empty for exported files)
+            html = html.replace(
+                /let transcriptData = (?:\[.*?\]|JSON\.parse\(localStorage\.getItem\('transcriptData'\) \|\| '\[\]'\));/s,
+                `let transcriptData = ${JSON.stringify(transcriptData)};`
+            );
+            html = html.replace(
+                /let vocabData = (?:\[.*?\]|JSON\.parse\(localStorage\.getItem\('vocabData'\) \|\| '\[\]'\));/s,
+                `let vocabData = ${JSON.stringify(vocabData)};`
+            );
+            html = html.replace(
+                /let quizData = (?:\[.*?\]|\{.*?\}|JSON\.parse\(localStorage\.getItem\('quizData'\) \|\| '\[\]'\));/s,
+                `let quizData = ${JSON.stringify(quizData)};`
+            );
+            html = html.replace(
+                /let selectedWords = (?:\[.*?\]|JSON\.parse\(localStorage\.getItem\('selectedWords'\) \|\| '\[\]'\));/s,
+                `let selectedWords = ${JSON.stringify(selectedWords)};`
+            );
+            html = html.replace(
+                /let videoId = (?:localStorage\.getItem\('videoId'\) \|\| ''|'[^']*');/,
+                `let videoId = localStorage.getItem('videoId') || '';`
+            );
+
+            // 確保 player 是空的 div，不要包含 iframe
+            html = html.replace(
+                /<iframe[^>]*id="player"[^>]*>[\s\S]*?<\/iframe>/,
+                '<div id="player" class="absolute inset-0"></div>'
+            );
+            html = html.replace(
+                /<div id="player"[^>]*>[\s\S]*?<\/div>/,
+                '<div id="player" class="absolute inset-0"></div>'
+            );
+
+            // Remove Capture buttons from exported file
+            html = html.replace(
+                /<button[^>]*onclick="captureTime\([^)]+\)"[^>]*>[\s\S]*?Capture[\s\S]*?<\/button>/g,
+                ''
+            );
+            
+            // Remove captureTime function from exported file
+            html = html.replace(
+                /function captureTime\([^)]*\) \{[\s\S]*?\n        \}/,
+                ''
+            );
+            
+            // Update video section hint text
+            html = html.replace(
+                /點擊時間標籤跳轉，按 Capture 設定當前播放時間/,
+                '點擊時間標籤跳轉到指定時間'
+            );
+
+            // Download
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'study_guide.html';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            console.log(`✅ 匯出成功！\n逐字稿: ${transcriptData.length} 段\n單字: ${vocabData.length} 個\n影片: 需透過「更換影片」按鈕設定`);
+        }
+
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+
+        // Global YouTube Ready handler
+        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+        // Initialize if data exists
+        if (transcriptData.length > 0 || vocabData.length > 0) {
+            renderTranscript();
+            renderVocab();
+        }
+        
+        // Update transcript title if CEFR level is set
+        if (cefrLevel) {
+            const transcriptTitle = document.getElementById('transcript-title');
+            if (transcriptTitle) {
+                transcriptTitle.textContent = `摘要（${cefrLevel}）`;
+            }
+        }
+        
+        // Update selected word count
+        updateSelectedCount();
+        
+        // Text Selection Handler
+        document.addEventListener('mouseup', handleTextSelection);
+        
+        function handleTextSelection(e) {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+            
+            if (!selectedText || selectedText.length === 0) {
+                hideSelectionPopup();
+                return;
+            }
+            
+            // Check if selection is within transcript
+            const container = document.getElementById('transcript-content');
+            if (!container || !container.contains(selection.anchorNode)) {
+                hideSelectionPopup();
+                return;
+            }
+            
+            // Show popup near cursor
+            const popup = document.getElementById('selection-popup');
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
+            popup.style.left = (rect.left + rect.width / 2 - 60) + 'px';
+            popup.style.top = (rect.top - 45) + 'px';
+            popup.classList.remove('hidden');
+            
+            popup.onclick = () => addSelectedWord(selectedText);
+        }
+        
+        function hideSelectionPopup() {
+            const popup = document.getElementById('selection-popup');
+            if (popup) popup.classList.add('hidden');
+        }
+        
+        function addSelectedWord(word) {
+            word = word.trim();
+            if (!word || selectedWords.includes(word)) {
+                hideSelectionPopup();
+                window.getSelection().removeAllRanges();
+                return;
+            }
+            
+            selectedWords.push(word);
+            localStorage.setItem('selectedWords', JSON.stringify(selectedWords));
+            updateSelectedCount();
+            highlightSelectedWords();
+            hideSelectionPopup();
+            window.getSelection().removeAllRanges();
+            
+            console.log(`✅ 已加入生字: ${word}`);
+        }
+        
+        function removeSelectedWord(word) {
+            word = word.trim();
+            const index = selectedWords.indexOf(word);
+            if (index > -1) {
+                selectedWords.splice(index, 1);
+                localStorage.setItem('selectedWords', JSON.stringify(selectedWords));
+                updateSelectedCount();
+                highlightSelectedWords();
+                console.log(`❌ 已取消選取: ${word}`);
+            }
+        }
+        
+        function updateSelectedCount() {
+            const countEl = document.getElementById('selected-count');
+            const countElMobile = document.getElementById('selected-count-mobile');
+            if (countEl) countEl.textContent = selectedWords.length;
+            if (countElMobile) countElMobile.textContent = selectedWords.length;
+        }
+        
+        function highlightSelectedWords() {
+            const container = document.getElementById('transcript-content');
+            if (!container) return;
+            
+            // Remove existing highlights
+            container.querySelectorAll('.selected-word').forEach(el => {
+                el.outerHTML = el.textContent;
+            });
+            
+            // Re-render to apply new highlights
+            renderTranscript();
+        }
+        
+        function toggleExportMenu(type = 'desktop') {
+            const menuId = 'export-menu';
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+            
+            menu.classList.toggle('hidden');
+            
+            // 點擊外部時關閉選單
+            if (!menu.classList.contains('hidden')) {
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest(`#${menuId}`) && !e.target.closest('button[onclick*="toggleExportMenu"]')) {
+                        menu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        }
+        
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('hamburger-btn');
+            
+            menu.classList.toggle('hidden');
+            btn.classList.toggle('active');
+            
+            // 點擊外部時關閉選單
+            if (!menu.classList.contains('hidden')) {
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#mobile-menu') && !e.target.closest('#hamburger-btn')) {
+                        menu.classList.add('hidden');
+                        btn.classList.remove('active');
+                    }
+                }, { once: true });
+            }
+        }
+
+        function generateExportPrompt() {
+            if (selectedWords.length === 0) {
+                return '';
+            }
+            
+            let prompt = selectedWords.join('\n');
+            prompt += '\n\n將以上英文單字嚴格依照以下 JSON Array 格式輸出結果：\n\n';
+            prompt += '1.  **id**: 單字的全小寫形式。\n';
+            prompt += '2.  **word**: 單字的首字母大寫。\n';
+            prompt += '3.  **ipa**: 該單字的 IPA 音標。\n';
+            prompt += '4.  **pos**: 詞性 (如 noun, verb, adjective)。\n';
+            prompt += '5.  **def**: 簡潔的英文定義。\n';
+            prompt += '6.  **cn**: 繁體中文解釋 (若有特定語境請一併標註)。\n';
+            prompt += '7.  **image**: 請輸出格式為 `https://source.unsplash.com/featured/?{單字}` 的連結，將 `{單字}` 替換為該單字的英文內容，以便自動抓取相關圖片。\n\n';
+            prompt += '範例格式：\n\n';
+            prompt += '[\n';
+            prompt += '    {\n';
+            prompt += '        "id": "pareidolia",\n';
+            prompt += '        "word": "Pareidolia",\n';
+            prompt += '        "ipa": "/ˌpær.ɪˈdoʊ.li.ə/",\n';
+            prompt += '        "pos": "noun",\n';
+            prompt += '        "def": "The psychological phenomenon of seeing recognizable shapes, especially faces, in random or vague stimuli.",\n';
+            prompt += '        "cn": "幻想性錯覺 (尤指將模糊圖像看作人臉)",\n';
+            prompt += '        "image": "https://source.unsplash.com/featured/?pareidolia"\n';
+            prompt += '    }\n';
+            prompt += ']\n';
+            
+            return prompt;
+        }
+
+        function copyExportPrompt() {
+            if (selectedWords.length === 0) {
+                alert('尚未選取任何生字');
+                return;
+            }
+            
+            const prompt = generateExportPrompt();
+            navigator.clipboard.writeText(prompt).then(() => {
+                document.getElementById('export-menu').classList.add('hidden');
+                console.log(`✅ Export Prompt 已複製 (${selectedWords.length} 個生字)`);
+            }).catch(() => {
+                alert('複製失敗，請重試');
+            });
+        }
+
+        function exportSelectedWords() {
+            if (selectedWords.length === 0) {
+                alert('尚未選取任何生字');
+                return;
+            }
+            
+            const text = selectedWords.map((word, i) => `${i + 1}. ${word}`).join('\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'selected_words.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log(`✅ 已匯出 ${selectedWords.length} 個生字`);
+        }
+    </script>
+
+
+</body></html>
