@@ -133,6 +133,10 @@
         #hamburger-btn.active .hamburger-line:nth-child(3) {
             transform: rotate(-45deg) translate(7px, -6px);
         }
+        /* Ensure Read and Pause buttons are visible in summary mode */
+        body.summary-mode .flex.gap-1.items-center {
+            display: flex !important;
+}
         
         /* Hide specific segment controls in summary mode */
         body.summary-mode .segment-time-btn,
@@ -782,7 +786,19 @@
     </div>
 
     <!-- Floating Card -->
-    <div id="floating-card" class="fixed hidden bg-white rounded-xl shadow-2xl w-80 border z-50"></div>
+    <div id="floating-card" class="fixed bg-white rounded-xl shadow-2xl w-80 border z-50 hidden" data-current-id="" style="left: 88.6172px; top: 461.297px;">
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-2">
+                        <h3 class="text-xl font-bold flex-1">Perceive</h3>
+                        <button onclick="event.stopPropagation(); speakWord('Perceive')" class="ml-2 p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition" title="播放發音">
+                            <span class="material-symbols-outlined text-lg">volume_up</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-500 mb-1">verb</div>
+                    <div class="text-xs text-blue-600 font-semibold mb-3">/pərˈsiːv/</div>
+                    <p class="text-sm mb-3">To interpret or become aware of something through the senses or the mind.</p>
+                    <p class="text-xs text-blue-700 font-bold">感知；察覺；理解</p>
+                </div></div>
 
     <!-- Selection Popup -->
     <div id="selection-popup" class="fixed hidden bg-purple-600 text-white px-4 py-2 rounded-lg shadow-xl z-50 text-sm font-semibold cursor-pointer hover:bg-purple-700 active:scale-95 transition-all">
